@@ -1,187 +1,130 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>熱舞社成發預購</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .seat { width: 30px; height: 30px; margin: 2px; border-radius: 4px; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .available { background-color: #f3f4f6; border: 1px solid #d1d5db; }
-        .selected { background-color: #ff69b4; color: white; }
-        .occupied { background-color: #9ca3af; color: white; cursor: not-allowed; opacity: 0.6; }
-        .bg-pink-main { background-color: #ffc0cb; }
-    </style>
+    <meta charset="UTF-8">
+    <title>M3 舞展預購系統</title>
+    <style>
+        :root { --available: #4CAF50; --occupied: #F44336; --selected: #FFEB3B; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        .item-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; border-radius: 5px; }
+        .seat-map { display: grid; grid-template-columns: repeat(15, 1fr); gap: 5px; margin-top: 20px; overflow-x: auto; }
+        .seat { width: 30px; height: 30px; border: 1px solid #ccc; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .available { background: var(--available); color: white; }
+        .occupied { background: var(--occupied); cursor: not-allowed; color: white; }
+        .selected { background: var(--selected); color: black; }
+        .hidden { display: none; }
+        .btn { background: #333; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-top: 20px; }
+    </style>
 </head>
-<body class="bg-white text-gray-800 pb-24">
+<body>
 
-    <header class="py-8 text-center bg-pink-50">
-        <h1 class="text-3xl font-extrabold text-pink-500">成發預購劃位系統</h1>
-    </header>
+<div class="container">
+    <h2>M3 舞展預購與劃位系統</h2>
 
-    <main class="max-w-2xl mx-auto p-4 space-y-8">
-        <section class="space-y-3">
-            <h2 class="font-bold border-l-4 border-pink-300 pl-2">1. 基本資料</h2>
-            <input id="name" type="text" placeholder="姓名" class="w-full border p-3 rounded-xl">
-            <input id="class_name" type="text" placeholder="班級 (如: 206)" class="w-full border p-3 rounded-xl">
-        </section>
+    <div id="step-info">
+        <h3>1. 個人資訊與品項</h3>
+        <input type="text" id="userName" placeholder="姓名" required>
+        <input type="text" id="userClass" placeholder="班級 (例：201)" required>
+        
+        <div id="products" style="margin-top:20px;">
+            <div class="item-card">
+                <span>門票 ($150)</span>
+                <input type="number" class="prod-qty" data-name="門票" data-price="150" value="0" min="0">
+            </div>
+            <div class="item-card">
+                <span>組合包 (門票+短袖) ($450)</span>
+                <input type="number" class="prod-qty" data-name="組合包" data-price="450" data-is-bundle="true" value="0" min="0">
+            </div>
+            <div class="item-card">
+                <span>外套 ($550)</span>
+                <input type="number" class="prod-qty" data-name="外套" data-price="550" value="0" min="0">
+            </div>
+            </div>
+        <button class="btn" onclick="goToSeats()">下一步：選擇座位</button>
+    </div>
 
-        <section class="space-y-4">
-            <h2 class="font-bold border-l-4 border-pink-300 pl-2">2. 選擇項目 (已設定定價)</h2>
-            <div class="p-4 border rounded-2xl flex justify-between items-center">
-                <div><p class="font-bold">預購門票 <span class="text-pink-500 ml-2">$150</span></p></div>
-                <input id="ticket_qty" type="number" value="0" min="0" onchange="updateUI()" class="w-16 text-center border-b">
-            </div>
-            <div class="p-4 border rounded-2xl flex justify-between items-center bg-pink-50">
-                <div><p class="font-bold">組合方案 (票+T-shirt) <span class="text-pink-500 ml-2">$450</span></p></div>
-                <input id="bundle_qty" type="number" value="0" min="0" onchange="updateUI()" class="w-12 text-center border-b bg-transparent">
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div class="p-3 border rounded-xl">
-                    <p class="text-sm font-bold">T-shirt A ($350)</p>
-                    <input id="tshirt_qty" type="number" value="0" min="0" onchange="updateUI()" class="w-full mt-1 text-center border-t">
-                </div>
-                <div class="p-3 border rounded-xl">
-                    <p class="text-sm font-bold">外套 ($800)</p>
-                    <input id="jacket_qty" type="number" value="0" min="0" onchange="updateUI()" class="w-full mt-1 text-center border-t">
-                </div>
-            </div>
-        </section>
+    <div id="step-seats" class="hidden">
+        <h3>2. 劃位 (您可選擇 <span id="max-seats">0</span> 個位置)</h3>
+        <p>前方為舞台方向</p>
+        <div class="seat-map" id="seatContainer"></div>
+        <button class="btn" onclick="submitOrder()">確認預購</button>
+    </div>
+</div>
 
-        <section>
-            <h2 class="font-bold border-l-4 border-pink-300 pl-2 mb-2">3. 挑選座位</h2>
-            <p id="seat-hint" class="text-xs text-gray-500 mb-4">請先購票以獲得劃位資格</p>
-            <div class="border rounded-2xl p-4 bg-gray-50 overflow-x-auto">
-                <div class="w-[400px] mx-auto">
-                    <div class="bg-pink-200 text-white text-center py-1 rounded mb-6 italic">STAGE 舞台</div>
-                    <div id="seat-container" class="grid grid-cols-10 gap-1"></div>
-                </div>
-            </div>
-        </section>
+<script>
+    let selectedSeats = [];
+    let maxSeatsAllowed = 0;
 
-        <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex items-center justify-between shadow-2xl">
-            <div>
-                <p class="text-xs text-gray-400">應付總額 (交給206林佑家)</p>
-                <p class="text-xl font-bold text-pink-500">$ <span id="total-display">0</span></p>
-            </div>
-            <button onclick="submitOrder()" class="bg-pink-main text-white px-8 py-3 rounded-full font-bold shadow-lg">確認送出</button>
-        </div>
-    </main>
-
-    <script>
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycby-IhhfuYyrAGJG25Q-zIvgOSsTL8p3LShjxidhPdAF24WL9m-PjihVVswQAmZvt6Uz/exec';
-        const PRICES = { ticket: 150, bundle: 450, tshirt: 350, jacket: 800 };
-        let selectedSeats = [];
-        let occupiedSeats = []; // 從後台讀取的已佔用座位
-
-        // 初始化座位與讀取後台資料
-        window.onload = async function() {
-            // 產生 80 個座位
-            const container = document.getElementById('seat-container');
-            for (let i = 1; i <= 80; i++) {
-                const div = document.createElement('div');
-                div.className = 'seat available';
-                div.id = `seat-${i}`;
-                div.innerText = i;
-                div.onclick = () => handleSeatSelection(div, i);
-                container.appendChild(div);
-            }
-            
-            // 從 GAS 讀取已佔用座位 (需實作 doGet)
-            try {
-                const res = await fetch(GAS_URL);
-                occupiedSeats = await res.json();
-                occupiedSeats.forEach(num => {
-                    const el = document.getElementById(`seat-${num}`);
-                    if(el) {
-                        el.classList.replace('available', 'occupied');
-                        el.onclick = null; // 讓已預訂的位置不可點選
-                    }
-                });
-            } catch(e) { console.log("暫無預約資料"); }
-        };
-
-        function updateUI() {
-            const t = parseInt(document.getElementById('ticket_qty').value) || 0;
-            const b = parseInt(document.getElementById('bundle_qty').value) || 0;
-            const ts = parseInt(document.getElementById('tshirt_qty').value) || 0;
-            const j = parseInt(document.getElementById('jacket_qty').value) || 0;
-
-            const total = (t * PRICES.ticket) + (b * PRICES.bundle) + (ts * PRICES.tshirt) + (j * PRICES.jacket);
-            document.getElementById('total-display').innerText = total;
-            document.getElementById('seat-hint').innerText = `購票總數：${t + b} 張，已選：${selectedSeats.length} 位`;
-        }
-
-        function handleSeatSelection(div, num) {
-            const limit = (parseInt(document.getElementById('ticket_qty').value) || 0) + 
-                          (parseInt(document.getElementById('bundle_qty').value) || 0);
-            
-            if (div.classList.contains('selected')) {
-                div.classList.remove('selected');
-                selectedSeats = selectedSeats.filter(s => s !== num);
-            } else {
-                if (limit === 0) return alert("請先選擇購票張數！");
-                if (selectedSeats.length >= limit) return alert(`購買 ${limit} 張票，只能選 ${limit} 個位子。`);
-                div.classList.add('selected');
-                selectedSeats.push(num);
-            }
-            updateUI();
-        }
-
-async function submitOrder() {
-    // 1. 取得票數限制
-    const tQty = parseInt(document.getElementById('ticket_qty').value) || 0;
-    const bQty = parseInt(document.getElementById('bundle_qty').value) || 0;
-    const limit = tQty + bQty; 
-
-    // 2. 取得基本資料與其他周邊
-    const name = document.getElementById('name').value;
-    const className = document.getElementById('class_name').value;
-    const tsQty = document.getElementById('tshirt_qty').value || 0;
-    const jQty = document.getElementById('jacket_qty').value || 0;
-    const totalPrice = document.getElementById('total-display').innerText;
-
-    // 3. 防呆檢查
-    if (!name || !className) {
-        return alert("請填寫姓名與班級！");
-    }
-    if (limit === 0 && (tsQty > 0 || jQty > 0)) {
-        // 如果只買周邊沒買票，就不需要劃位，這部分邏輯可以自行決定
-    } else if (selectedSeats.length !== limit) {
-        return alert(`劃位數量不符！\n你購買了 ${limit} 張票，但目前選了 ${selectedSeats.length} 個位置。`);
+    // 初始化模擬座位 (A-G 1-15, H-T 1-15 等區塊)
+    function initSeats() {
+        const container = document.getElementById('seatContainer');
+        const rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        // 根據你圖片的邏輯生成 (簡化版示範)
+        for(let r=0; r<10; r++) {
+            for(let c=1; c<=15; c++) {
+                const seatId = rows[r] + c;
+                const div = document.createElement('div');
+                div.className = 'seat available';
+                div.innerText = seatId;
+                div.onclick = () => toggleSeat(seatId, div);
+                container.appendChild(div);
+            }
+        }
     }
 
-    // 4. 準備傳送到後台的資料 (欄位名稱要對應到你的 Google Sheet)
-    const orderData = {
-        name: name,
-        class_name: className,
-        items: `預購票:${tQty}, 組合:${bQty}, T-shirt:${tsQty}, 外套:${jQty}`,
-        seats: selectedSeats.join(', '), // 轉成字串較好存入表格
-        totalPrice: totalPrice,
-        timestamp: new Date().toLocaleString() // 加入時間戳記方便後台判斷一週期限
-    };
-
-    try {
-        // 顯示載入中
-        const btn = event.target;
-        btn.innerText = "處理中...";
-        btn.disabled = true;
-
-        const response = await fetch(GAS_URL, { 
-            method: 'POST', 
-            mode: 'no-cors', // 重要：避免跨網域問題，但這會讓你無法讀取 response 內容
-            body: JSON.stringify(orderData) 
+    function goToSeats() {
+        let ticketQty = 0;
+        document.querySelectorAll('.prod-qty').forEach(input => {
+            if(input.dataset.name === "門票") ticketQty += parseInt(input.value);
+            if(input.dataset.isBundle) ticketQty += parseInt(input.value);
         });
         
-        // 顯示成功明細
-        const summary = `✨ 預購成功！\n👤 姓名：${orderData.name}\n💺 劃位：${orderData.seats}\n💰 總額：$${orderData.totalPrice}\n\n📢 重要：請於一週內交錢給 206林佑家，否則註銷！`;
-        alert(summary);
+        if(ticketQty <= 0) {
+            alert("請至少購買一張門票或組合包才能劃位！");
+            return;
+        }
         
-        location.reload(); // 重整頁面
-    } catch (e) {
-        console.error(e);
-        alert('系統繁忙，請檢查網路或聯絡管理員！');
-        btn.disabled = false;
-        btn.innerText = "確認送出";
+        maxSeatsAllowed = ticketQty;
+        document.getElementById('max-seats').innerText = maxSeatsAllowed;
+        document.getElementById('step-info').classList.add('hidden');
+        document.getElementById('step-seats').classList.remove('hidden');
+        initSeats();
     }
-}
+
+    function toggleSeat(id, el) {
+        if(el.classList.contains('occupied')) return;
+        
+        if(selectedSeats.includes(id)) {
+            selectedSeats = selectedSeats.filter(s => s !== id);
+            el.classList.remove('selected');
+        } else {
+            if(selectedSeats.length >= maxSeatsAllowed) {
+                alert(`您購買了 ${maxSeatsAllowed} 張票，只能選 ${maxSeatsAllowed} 個位子`);
+                return;
+            }
+            selectedSeats.push(id);
+            el.classList.add('selected');
+        }
+    }
+
+    function submitOrder() {
+        if(selectedSeats.length !== maxSeatsAllowed) {
+            alert("請選滿對應數量的座位！");
+            return;
+        }
+        
+        const data = {
+            name: document.getElementById('userName').value,
+            className: document.getElementById('userClass').value,
+            seats: selectedSeats,
+            totalPrice: 1000, // 這裡需計算實際總額
+            items: "詳細清單..."
+        };
+
+        alert(`預購成功！\n明細：${selectedSeats.join(", ")}\n請於一週內將現金交給 206林佑家，否則將取消資格。`);
+        // 這裡接 fetch(https://script.google.com/macros/s/AKfycbwrGzunZIrrmhBpmFZkLttuzI51mup3iuwbzjldEakcOOro3R6nJL5swiL1SzHAtDDO/exec) 發送資料
+    }
+</script>
+</body>
+</html>
