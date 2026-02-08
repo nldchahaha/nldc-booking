@@ -53,78 +53,160 @@
 </div>
 
 <script>
-    let selectedSeats = [];
-    let maxSeatsAllowed = 0;
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbwZ4ESages0xz8h68NfhBYgbNl_eVPoMEQsxZmvoK2ziscKBIuKIz0ttQat5zUi1Iy7/exec"; // .../exec
 
-    // 初始化模擬座位 (A-G 1-15, H-T 1-15 等區塊)
-    function initSeats() {
-        const container = document.getElementById('seatContainer');
-        const rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-        // 根據你圖片的邏輯生成 (簡化版示範)
-        for(let r=0; r<10; r++) {
-            for(let c=1; c<=15; c++) {
-                const seatId = rows[r] + c;
-                const div = document.createElement('div');
-                div.className = 'seat available';
-                div.innerText = seatId;
-                div.onclick = () => toggleSeat(seatId, div);
-                container.appendChild(div);
-            }
-        }
-    }
+  let selectedSeats = [];
+  let maxSeatsAllowed = 0;
+  let seatStatusMap = {}; // { "A1": "occupied" }
 
-    function goToSeats() {
-        let ticketQty = 0;
-        document.querySelectorAll('.prod-qty').forEach(input => {
-            if(input.dataset.name === "門票") ticketQty += parseInt(input.value);
-            if(input.dataset.isBundle) ticketQty += parseInt(input.value);
-        });
-        
-        if(ticketQty <= 0) {
-            alert("請至少購買一張門票或組合包才能劃位！");
-            return;
-        }
-        
-        maxSeatsAllowed = ticketQty;
-        document.getElementById('max-seats').innerText = maxSeatsAllowed;
-        document.getElementById('step-info').classList.add('hidden');
-        document.getElementById('step-seats').classList.remove('hidden');
-        initSeats();
-    }
+  // 先去後台拉座位狀態
+  async function loadSeatStatus() {
+    const url = `${GAS_URL}?action=seatStatus`;
+    const res = await fetch(url, { method: "GET" });
+    const json = await res.json();
+    if (json.result !== "success") throw new Error(json.message || "loadSeatStatus failed");
 
-    function toggleSeat(id, el) {
-        if(el.classList.contains('occupied')) return;
-        
-        if(selectedSeats.includes(id)) {
-            selectedSeats = selectedSeats.filter(s => s !== id);
-            el.classList.remove('selected');
+    seatStatusMap = {};
+    (json.seats || []).forEach(([id, status]) => {
+      seatStatusMap[String(id)] = String(status);
+    });
+  }
+
+  // 初始化座位 UI：根據 seatStatusMap 決定 occupied/available
+  function initSeats() {
+    const container = document.getElementById('seatContainer');
+    container.innerHTML = ""; // 重要：避免重複渲染
+    selectedSeats = [];       // 切頁重來避免殘留
+
+    const rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    for (let r = 0; r < 10; r++) {
+      for (let c = 1; c <= 15; c++) {
+        const seatId = rows[r] + c;
+
+        const div = document.createElement('div');
+        div.className = 'seat';
+        div.innerText = seatId;
+
+        const status = seatStatusMap[seatId] || "available";
+        if (status === "occupied") {
+          div.classList.add("occupied");
+          div.onclick = null; // 不可點
         } else {
-            if(selectedSeats.length >= maxSeatsAllowed) {
-                alert(`您購買了 ${maxSeatsAllowed} 張票，只能選 ${maxSeatsAllowed} 個位子`);
-                return;
-            }
-            selectedSeats.push(id);
-            el.classList.add('selected');
+          div.classList.add("available");
+          div.onclick = () => toggleSeat(seatId, div);
         }
+
+        container.appendChild(div);
+      }
+    }
+  }
+
+  async function goToSeats() {
+    let ticketQty = 0;
+    document.querySelectorAll('.prod-qty').forEach(input => {
+      if (input.dataset.name === "門票") ticketQty += parseInt(input.value || "0", 10);
+      if (input.dataset.isBundle) ticketQty += parseInt(input.value || "0", 10);
+    });
+
+    if (ticketQty <= 0) {
+      alert("請至少購買一張門票或組合包才能劃位！");
+      return;
     }
 
-    function submitOrder() {
-        if(selectedSeats.length !== maxSeatsAllowed) {
-            alert("請選滿對應數量的座位！");
-            return;
-        }
-        
-        const data = {
-            name: document.getElementById('userName').value,
-            className: document.getElementById('userClass').value,
-            seats: selectedSeats,
-            totalPrice: 1000, // 這裡需計算實際總額
-            items: "詳細清單..."
-        };
+    maxSeatsAllowed = ticketQty;
+    document.getElementById('max-seats').innerText = maxSeatsAllowed;
+    document.getElementById('step-info').classList.add('hidden');
+    document.getElementById('step-seats').classList.remove('hidden');
 
-        alert(`預購成功！\n明細：${selectedSeats.join(", ")}\n請於一週內將現金交給 206林佑家，否則將取消資格。`);
-        // 這裡接 fetch(https://script.google.com/macros/s/AKfycbwrGzunZIrrmhBpmFZkLttuzI51mup3iuwbzjldEakcOOro3R6nJL5swiL1SzHAtDDO/exec) 發送資料
+    try {
+      await loadSeatStatus();
+      initSeats();
+    } catch (e) {
+      alert("讀取座位狀態失敗：" + e.message);
     }
+  }
+
+  function toggleSeat(id, el) {
+    if (el.classList.contains('occupied')) return;
+
+    if (selectedSeats.includes(id)) {
+      selectedSeats = selectedSeats.filter(s => s !== id);
+      el.classList.remove('selected');
+    } else {
+      if (selectedSeats.length >= maxSeatsAllowed) {
+        alert(`您購買了 ${maxSeatsAllowed} 張票，只能選 ${maxSeatsAllowed} 個位子`);
+        return;
+      }
+      selectedSeats.push(id);
+      el.classList.add('selected');
+    }
+  }
+
+  // 送出訂單：真正 POST 到 GAS doPost
+  async function submitOrder() {
+    if (selectedSeats.length !== maxSeatsAllowed) {
+      alert("請選滿對應數量的座位！");
+      return;
+    }
+
+    const name = document.getElementById('userName').value.trim();
+    const className = document.getElementById('userClass').value.trim();
+    if (!name || !className) {
+      alert("請填寫姓名與班級");
+      return;
+    }
+
+    // 你原本寫 totalPrice/items 是假的，先至少組出 items
+    const items = [];
+    let totalPrice = 0;
+    document.querySelectorAll('.prod-qty').forEach(input => {
+      const qty = parseInt(input.value || "0", 10);
+      if (qty > 0) {
+        const price = parseInt(input.dataset.price || "0", 10);
+        items.push({ name: input.dataset.name, qty, price });
+        totalPrice += qty * price;
+      }
+    });
+
+    const payload = {
+      name,
+      className,
+      seats: selectedSeats,
+      totalPrice,
+      items
+    };
+
+    try {
+      const res = await fetch(GAS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+        // GAS 常見相容做法：用 text/plain 傳 JSON 字串
+        body: JSON.stringify(payload)
+      });
+
+      const json = await res.json();
+
+      if (json.result === "success") {
+        alert(`預購成功！\n座位：${selectedSeats.join(", ")}\n請於一週內付款，否則取消。`);
+        // 成功後重新載入座位狀態，避免下一個人看到舊畫面
+        await loadSeatStatus();
+        initSeats();
+      } else {
+        // 若是搶位衝突，後台會回 conflict
+        if (json.conflict && json.conflict.length) {
+          alert(`這些座位已被搶先選走：${json.conflict.join(", ")}\n請重新選位。`);
+          await loadSeatStatus();
+          initSeats();
+        } else {
+          alert("送出失敗：" + (json.message || "unknown error"));
+        }
+      }
+    } catch (e) {
+      alert("送出失敗（網路或權限問題）：" + e.message);
+    }
+  }
 </script>
+
 </body>
 </html>
+
