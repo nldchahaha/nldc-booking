@@ -149,10 +149,70 @@
       el.classList.add("selected");
     }
   }
+    async function submitOrder() {
+
+  const name = document.getElementById("userName").value.trim();
+  const className = document.getElementById("userClass").value.trim();
+
+  if (!name || !className) {
+    alert("請填寫姓名與班級");
+    return;
+  }
+
+  if (selectedSeats.length !== maxSeatsAllowed) {
+    alert(`請選滿 ${maxSeatsAllowed} 個座位`);
+    return;
+  }
+
+  // 取得商品
+  const items = [];
+  let totalPrice = 0;
+
+  document.querySelectorAll(".prod-qty").forEach(input => {
+    const qty = parseInt(input.value || "0", 10);
+    if (qty > 0) {
+      const price = parseInt(input.dataset.price, 10);
+      items.push({
+        name: input.dataset.name,
+        qty,
+        price
+      });
+      totalPrice += price * qty;
+    }
+  });
+
+  const payload = {
+    name,
+    className,
+    seats: selectedSeats,
+    items,
+    totalPrice
+  };
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json();
+
+    if (json.result === "success") {
+      alert("預購成功！");
+      location.reload();
+    } else {
+      alert(json.message || "送出失敗");
+    }
+  } catch (e) {
+    alert("連線失敗");
+    console.error(e);
+  }
+}
 </script>
 
 </body>
 </html>
+
 
 
 
