@@ -66,7 +66,7 @@
 </div>
 
 <script>
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbzGTEkK--tzxjAb1BpYraWHU_Z-HXLqv2EWATUoPqU7lFvE_d8w5ll8tvADkR7SkHGZ/exec"; 
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbyc-If4-jrBPgMZNJFRupENtuQcLSfnXWEdGKcs5PsPYdMO2CjkH_SWXf0Ougbesrvz/exec"; 
 
   let selectedSeats = [];
   let maxSeatsAllowed = 0;
@@ -113,16 +113,19 @@
 
   async function goToSeats() {
     let ticketQty = 0;
-    document.querySelectorAll(".prod-qty").forEach(input => {
-      if (input.dataset.name === "門票") ticketQty += parseInt(input.value || "0", 10);
-      if (input.dataset.isBundle) ticketQty += parseInt(input.value || "0", 10);
-    });
+    items.forEach(it => {
+    if (it.name === "門票") ticketQty += it.qty;
+    // 組合包算一張票（你原本就是這個邏輯）
+    if (it.name === "組合包") ticketQty += it.qty;
+  });
 
-    if (ticketQty <= 0) {
-      alert("請至少購買一張門票或組合包才能劃位！");
-      return;
-    }
-
+  if (ticketQty <= 0) {
+    alert("請至少購買一張門票或組合包才能劃位！");
+    return;
+  }
+ if (ticketQty !== selectedSeats.length) {
+    alert(`你買了 ${ticketQty} 張票，但選了 ${selectedSeats.length} 個座位，請重新確認。`);
+    return;     
     maxSeatsAllowed = ticketQty;
     document.getElementById("max-seats").innerText = maxSeatsAllowed;
 
@@ -140,7 +143,13 @@
     if (selectedSeats.includes(id)) {
       selectedSeats = selectedSeats.filter(s => s !== id);
       el.classList.remove("selected");
-    } else {
+    } 
+        async function submitOrder() {
+  // 1) 檢查是否選滿座位
+  if (selectedSeats.length !== maxSeatsAllowed) {
+    alert(`請選滿 ${maxSeatsAllowed} 個座位`);
+    return;
+  }else {
       if (selectedSeats.length >= maxSeatsAllowed) {
         alert(`您購買了 ${maxSeatsAllowed} 張票，只能選 ${maxSeatsAllowed} 個位子`);
         return;
@@ -171,12 +180,12 @@
   document.querySelectorAll(".prod-qty").forEach(input => {
     const qty = parseInt(input.value || "0", 10);
     if (qty > 0) {
-      const price = parseInt(input.dataset.price, 10);
-      items.push({
-        name: input.dataset.name,
-        qty,
-        price
-      });
+       const itemName = input.dataset.name;
+      const price = parseInt(input.dataset.price || "0", 10);
+      items.push({ name: itemName, qty, price });
+      totalPrice += qty * price;
+    }
+  });
       totalPrice += price * qty;
     }
   });
@@ -189,20 +198,53 @@
     totalPrice
   };
 
+ const payload = {
+    name,
+    className,
+    seats: selectedSeats,
+    totalPrice,
+    items
+  };
+
   try {
     const res = await fetch(GAS_URL, {
       method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     });
 
     const json = await res.json();
 
     if (json.result === "success") {
-      alert("預購成功！");
-      location.reload();
+      // 顯示「周邊名稱＋數量」明細
+      const itemText = items.map(it => `${it.name} x${it.qty}`).join("、");
+      alert(
+        預購成功！\n +
+        座位：${selectedSeats.join(", ")}\n +
+        品項：${itemText}\n +
+        總金額：$${totalPrice}\n +
+        請於一週內付款，否則取消。
+      );
+
+      // 成功後刷新座位狀態
+      await loadSeatStatus();
+      initSeats();
+
     } else {
-      alert(json.message || "送出失敗");
+      if (json.conflict && json.conflict.length) {
+        alert(`這些座位已被搶先選走：${json.conflict.join(", ")}\n請重新選位。`);
+        await loadSeatStatus();
+        initSeats();
+      } else {
+        alert("送出失敗：" + (json.message || "unknown error"));
+      }
     }
+
+  } catch (e) {
+    alert("送出失敗（網路或權限問題）：" + e.message);
+  }
+}
+
   } catch (e) {
     alert("連線失敗");
     console.error(e);
@@ -212,6 +254,7 @@
 
 </body>
 </html>
+
 
 
 
