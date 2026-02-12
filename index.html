@@ -113,11 +113,47 @@ window.onload = function() {
     fetch(`${GAS_URL}?action=seatStatus`)
         .then(res => res.json())
         .then(json => {
-            if (json.result === "success") {
-                updateLocalSeatData(json.seats);
-                isDataPreloaded = true;
-                console.log("✅ 座位表預載完成！");
-            }
+           if (json.result === "success") {
+            // 組合商品明細的 HTML 文字 (計算個別金額)
+            const itemsHtml = items.map(it => 
+                `&nbsp;&nbsp;• ${it.name} <b>x${it.qty}</b> (小計: $${it.qty * it.price})`
+            ).join("<br>");
+
+            // 顯示詳細的 SweetAlert 成功畫面
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 預購成功！',
+                width: 450, // 稍微加寬讓明細更好看
+                html: `
+                    <div style="text-align: left; background: #f4f6f8; padding: 15px; border-radius: 8px; margin-top: 10px; font-size: 15px; line-height: 1.6;">
+                        <b>🧑‍🎓 姓名：</b>${payload.name}<br>
+                        <b>🏫 班級：</b>${payload.className}<br>
+                        <b>🪑 座位：</b>${selectedSeats.join(", ")}<br>
+                        <b>🛍️ 商品明細：</b><br>
+                        ${itemsHtml}
+                        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 12px 0;">
+                        <div style="text-align: right; font-size: 1.1em;">
+                            <b>💰 總金額：<span style="color: #d32f2f;">$${totalPrice}</span></b>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: #ffebee; padding: 12px; border-radius: 5px; color: #c62828; font-weight: bold; font-size: 15px; margin-top: 15px;">
+                        ⚠️ 請於一週內交錢給 206 林佑家，<br>否則預定商品及劃位將失效！
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <small style="color: #555;">📸 請務必截圖此畫面作為繳費憑證</small>
+                    </div>
+                `,
+                confirmButtonText: '好，我已截圖確認！',
+                confirmButtonColor: '#2e7d32',
+                allowOutsideClick: false // 強制使用者必須點擊按鈕才能關閉，避免誤觸背景關閉而沒截圖到
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload(); // 按下確定後重整
+                }
+            });
+        }
         })
         .catch(err => console.log("預載失敗 (可能是網路問題，稍後會自動重試)"));
 };
@@ -330,5 +366,6 @@ function hideLoading() {
 
 </body>
 </html>
+
 
 
