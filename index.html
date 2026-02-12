@@ -107,53 +107,18 @@ let maxSeatsAllowed = 0;
 let seatStatusMap = {}; 
 let isDataPreloaded = false; // 標記：資料是否預載完成
 
-// 1. 【預先載入】網頁一打開，背景就偷抓資料
+ow.onload = function() {consol
+                       // 1. 【預先載入】網頁一打開，背景就偷抓資料
 window.onload = function() {
     console.log("🚀 系統啟動，開始預載座位...");
     fetch(`${GAS_URL}?action=seatStatus`)
         .then(res => res.json())
         .then(json => {
-           if (json.result === "success") {
-            // 組合商品明細的 HTML 文字 (計算個別金額)
-            const itemsHtml = items.map(it => 
-                `&nbsp;&nbsp;• ${it.name} <b>x${it.qty}</b> (小計: $${it.qty * it.price})`
-            ).join("<br>");
-
-            // 顯示詳細的 SweetAlert 成功畫面
-            Swal.fire({
-                icon: 'success',
-                title: '🎉 預購成功！',
-                width: 450, // 稍微加寬讓明細更好看
-                html: `
-                    <div style="text-align: left; background: #f4f6f8; padding: 15px; border-radius: 8px; margin-top: 10px; font-size: 15px; line-height: 1.6;">
-                        <b>🧑‍🎓 姓名：</b>${payload.name}<br>
-                        <b>🏫 班級：</b>${payload.className}<br>
-                        <b>🪑 座位：</b>${selectedSeats.join(", ")}<br>
-                        <b>🛍️ 商品明細：</b><br>
-                        ${itemsHtml}
-                        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 12px 0;">
-                        <div style="text-align: right; font-size: 1.1em;">
-                            <b>💰 總金額：<span style="color: #d32f2f;">$${totalPrice}</span></b>
-                        </div>
-                    </div>
-                    
-                    <div style="background-color: #ffebee; padding: 12px; border-radius: 5px; color: #c62828; font-weight: bold; font-size: 15px; margin-top: 15px;">
-                        ⚠️ 請於一週內交錢給 206 林佑家，<br>否則預定商品及劃位將失效！
-                    </div>
-                    
-                    <div style="margin-top: 15px;">
-                        <small style="color: #555;">📸 請務必截圖此畫面作為繳費憑證</small>
-                    </div>
-                `,
-                confirmButtonText: '好，我已截圖確認！',
-                confirmButtonColor: '#2e7d32',
-                allowOutsideClick: false // 強制使用者必須點擊按鈕才能關閉，避免誤觸背景關閉而沒截圖到
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    location.reload(); // 按下確定後重整
-                }
-            });
-        }
+            if (json.result === "success") {
+                updateLocalSeatData(json.seats);
+                isDataPreloaded = true;
+                console.log("✅ 座位表預載完成！");
+            }
         })
         .catch(err => console.log("預載失敗 (可能是網路問題，稍後會自動重試)"));
 };
@@ -319,16 +284,60 @@ async function submitOrder() {
         hideLoading(); // 關閉遮罩
 
         if (json.result === "success") {
-            // SweetAlert 成功畫面
+            // --- 製作商品明細列表 HTML ---
+            const itemsHtml = items.map(it => 
+                `<div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span>${it.name} x${it.qty}</span>
+                    <span>$${it.qty * it.price}</span>
+                 </div>`
+            ).join("");
+
+            // --- 顯示詳細的 SweetAlert 成功畫面 ---
             Swal.fire({
                 icon: 'success',
                 title: '🎉 預購成功！',
-                html: `總金額：<b>$${totalPrice}</b><br>座位：${selectedSeats.join(", ")}<br><br><small>請記得截圖並於期限內繳費</small>`,
-                confirmButtonText: '好，我截圖了'
-            }).then(() => {
-                location.reload(); // 按下確定後重整
+                width: 480, // 加寬視窗以便顯示明細
+                html: `
+                    <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 15px; color: #333;">
+                        <p style="margin: 5px 0;"><b>🧑‍🎓 姓名：</b>${payload.name}</p>
+                        <p style="margin: 5px 0;"><b>🏫 班級：</b>${payload.className}</p>
+                        <p style="margin: 5px 0;"><b>🪑 座位代號：</b><span style="color:#2e7d32; font-weight:bold;">${selectedSeats.join(", ")}</span></p>
+                        
+                        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 10px 0;">
+                        
+                        <div style="font-size: 14px; margin-bottom: 10px;">
+                            <b>🧾 商品明細：</b><br>
+                            ${itemsHtml}
+                        </div>
+                        
+                        <hr style="border: 0; border-top: 2px solid #333; margin: 10px 0;">
+                        
+                        <div style="text-align: right; font-size: 18px; font-weight: bold;">
+                            總金額：<span style="color: #d32f2f;">$${totalPrice}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: #ffebee; border: 1px solid #ef9a9a; padding: 12px; border-radius: 6px; color: #c62828; font-weight: bold; font-size: 15px; margin-top: 15px; line-height: 1.5;">
+                        ⚠️ 重要繳費須知<br>
+                        請於一週內將款項交給<br>
+                        <span style="font-size: 1.2em; text-decoration: underline;">206 林佑家</span><br>
+                        否則預定商品及劃位將失效！
+                    </div>
+                    
+                    <div style="margin-top: 15px; color: #555; font-size: 13px;">
+                        📸 請截圖此畫面作為憑證
+                    </div>
+                `,
+                confirmButtonText: '好，我截圖了',
+                confirmButtonColor: '#2e7d32',
+                allowOutsideClick: false // 強制不能點旁邊關閉
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload(); // 按下確定後重整
+                }
             });
         } else {
+            // 處理衝突錯誤
             if (json.conflict) {
                 Swal.fire({
                     icon: 'error',
@@ -350,6 +359,7 @@ async function submitOrder() {
         }
     } catch (e) {
         hideLoading();
+        console.error(e);
         Swal.fire({ icon: 'error', title: '送出失敗', text: '網路連線異常，請檢查網路' });
     }
 }
@@ -366,6 +376,7 @@ function hideLoading() {
 
 </body>
 </html>
+
 
 
 
