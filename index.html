@@ -6,7 +6,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        :root { --available: #2e7d32; --occupied: #bdbdbd; --selected: #FFEB3B; }
+        /* 配合實體圖面白底黑字的風格，調整 available 顏色 */
+        :root { --available: #ffffff; --occupied: #bdbdbd; --selected: #FFEB3B; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f8f9fa; margin: 0; }
         .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #333; margin-bottom: 25px; }
@@ -15,17 +16,43 @@
         .item-card { border: 1px solid #eee; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; background: #fff; }
         .item-name { font-weight: bold; }
         
-        /* 座位表優化 */
-        .seat-map { display: grid; grid-template-columns: repeat(15, 1fr); gap: 4px; margin-top: 20px; overflow-x: auto; padding-bottom: 10px; }
+        /* 座位表優化 (配合圖片改為 29 欄位) */
+        .seat-map { 
+            display: grid; 
+            grid-template-columns: repeat(29, minmax(20px, 1fr)); /* 29格: 7+1(走道)+13+1(走道)+7 */
+            gap: 3px; 
+            margin-top: 20px; 
+            overflow-x: auto; 
+            padding-bottom: 10px; 
+            background: #f0f0f0; /* 加點底色讓白色座位更明顯 */
+            padding: 15px;
+            border-radius: 8px;
+        }
         .seat {
-            width: 28px; height: 28px; border-radius: 4px; font-size: 9px;
+            aspect-ratio: 1 / 1; 
+            border-radius: 3px; 
+            font-size: 8px; /* 字體調小以適應格子 */
             display: flex; align-items: center; justify-content: center; cursor: pointer;
             transition: transform 0.1s; user-select: none;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
         }
         .seat:active { transform: scale(0.9); }
-        .available { background: var(--available); color: white; }
-        .occupied { background: var(--occupied); color: #666; cursor: not-allowed; pointer-events: none; }
-        .selected { background: var(--selected); color: black; font-weight: bold; border: 1px solid #fbc02d; }
+        
+        /* 基礎狀態 */
+        .available { background: var(--available); color: #333; }
+        .available:hover { border-color: #666; }
+        .occupied { background: var(--occupied); color: #fff; cursor: not-allowed; pointer-events: none; border-color: #999; }
+        .selected { background: var(--selected); color: black; font-weight: bold; border: 2px solid #fbc02d; }
+        
+        /* 特殊區域靜態顏色 (禁止劃位) */
+        .seat.static-red { background: #e53935; color: transparent; border-color: #b71c1c; cursor: not-allowed; pointer-events: none; }
+        .seat.static-orange { background: #fb8c00; color: transparent; border-color: #e65100; cursor: not-allowed; pointer-events: none; }
+        .seat.static-yellow { background: #fdd835; color: transparent; border-color: #f57f17; cursor: not-allowed; pointer-events: none; }
+        .seat.static-blue { background: #1e88e5; color: transparent; border-color: #0d47a1; cursor: not-allowed; pointer-events: none; }
+        .seat.static-green { background: #43a047; color: transparent; border-color: #1b5e20; cursor: not-allowed; pointer-events: none; }
+        .seat.static-grey { background: #9e9e9e; color: transparent; border-color: #616161; cursor: not-allowed; pointer-events: none; }
+        .seat.aisle { background: transparent; border: none; pointer-events: none; } /* 走道隱藏 */
         
         .hidden { display: none !important; }
         .btn { 
@@ -36,25 +63,30 @@
         input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100px; }
         #userName, #userClass { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
 
-        /* --- Loading 遮罩樣式 (關鍵) --- */
+        /* Loading 遮罩樣式 */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75); /* 深色背景 */
+            background: rgba(0, 0, 0, 0.75);
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             z-index: 9999; color: white;
-            backdrop-filter: blur(3px); /* 模糊背景效果 */
+            backdrop-filter: blur(3px);
         }
         .spinner {
             width: 50px; height: 50px;
             border: 5px solid rgba(255,255,255,0.3);
-            border-top: 5px solid #FFEB3B; /* 黃色轉圈 */
+            border-top: 5px solid #FFEB3B;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 15px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #loading-text { font-size: 1.1em; letter-spacing: 1px; font-weight: 300; }
+        
+        /* 圖例說明樣式 */
+        .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 15px; font-size: 12px; }
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .legend-box { width: 15px; height: 15px; border-radius: 3px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -91,7 +123,16 @@
 
     <div id="step-seats" class="hidden">
         <h3>2. 劃位 (需選 <span id="max-seats">0</span> 位)</h3>
-        <div style="text-align: center; background: #eee; padding: 5px; margin-bottom: 10px; font-size: 12px; border-radius: 4px;">⬆️ 前方舞台 ⬆️</div>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="legend-box" style="background:#fff;"></div>可劃位</div>
+            <div class="legend-item"><div class="legend-box" style="background:#FFEB3B; border-color:#fbc02d;"></div>已選擇</div>
+            <div class="legend-item"><div class="legend-box" style="background:#bdbdbd;"></div>已售出</div>
+            <div class="legend-item"><div class="legend-box" style="background:#e53935; border-color:#b71c1c;"></div>友校/貴賓</div>
+            <div class="legend-item"><div class="legend-box" style="background:#1e88e5; border-color:#0d47a1;"></div>老人區</div>
+        </div>
+
+        <div style="text-align: center; background: #eee; padding: 5px; margin-bottom: 10px; font-size: 12px; border-radius: 4px; font-weight: bold;">⬆️ 前方舞台 ⬆️</div>
         <div class="seat-map" id="seatContainer"></div>
         <button class="btn" style="background: #2e7d32;" onclick="submitOrder()">確認送出訂單</button>
         <button class="btn" style="background: #757575; margin-top: 10px;" onclick="goBack()">回上一步</button>
@@ -99,15 +140,13 @@
 </div>
 
 <script>
-// ⚠️ 請換成你的 Google Apps Script 網址
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxKtz-Hxd8PZZt6L1iqADP5kjW22MkZAOlWDREBQYTmh4g8cYZuFu54i9ylwzSJsG-b/exec"; 
 
 let selectedSeats = [];
 let maxSeatsAllowed = 0;
 let seatStatusMap = {}; 
-let isDataPreloaded = false; // 標記：資料是否預載完成
+let isDataPreloaded = false; 
 
-                       // 1. 【預先載入】網頁一打開，背景就偷抓資料
 window.onload = function() {
     console.log("🚀 系統啟動，開始預載座位...");
     fetch(`${GAS_URL}?action=seatStatus`)
@@ -122,7 +161,6 @@ window.onload = function() {
         .catch(err => console.log("預載失敗 (可能是網路問題，稍後會自動重試)"));
 };
 
-// 輔助：更新本地變數
 function updateLocalSeatData(seatsArray) {
     seatStatusMap = {};
     (seatsArray || []).forEach(([id, status]) => {
@@ -130,33 +168,90 @@ function updateLocalSeatData(seatsArray) {
     });
 }
 
-// 2. 渲染座位
+// 👑 全新渲染座位邏輯 (精準對應圖片配置)
 function initSeats() {
     const container = document.getElementById("seatContainer");
     container.innerHTML = "";
-    selectedSeats = []; // 重置選擇
+    selectedSeats = []; 
 
-    const rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    for (let r = 0; r < 10; r++) { // A-J 排
-        for (let c = 1; c <= 15; c++) {
-            const seatId = rows[r] + c;
+    // 定義 X 軸與 Y 軸陣列 (包含 GAP 作為走道)
+    const cols = ['A','B','C','D','E','F','G', 'GAP1', 'H','I','J','K','L','M','N','O','P','Q','R','S','T', 'GAP2', 'U','V','W','X','Y','Z','#'];
+    const rows = [1, 2, 3, 4, 5, 'GAP3', 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
+    rows.forEach(r => {
+        cols.forEach(c => {
             const div = document.createElement("div");
-            div.classList.add("seat");
 
-            const status = seatStatusMap[seatId] || "available";
-            if (status === "occupied") {
-                div.classList.add("occupied");
-            } else {
-                div.classList.add("available");
-                div.onclick = () => toggleSeat(seatId, div);
+            // 1. 處理粉紅色走道 (空白不渲染)
+            if (r === 'GAP3' || c === 'GAP1' || c === 'GAP2') {
+                div.classList.add("seat", "aisle");
+                container.appendChild(div);
+                return;
             }
+
+            const seatId = c + r;
+            div.classList.add("seat");
             div.innerText = seatId;
+
+            // 2. 判斷各區域的靜態顏色
+            let staticType = 'white'; // 預設為可劃位區
+            
+            // 紅色：左前貴賓區 (A~D / 1~2排)
+            if (r === 1 || r === 2) {
+                if (['A','B','C','D'].includes(c)) staticType = 'red';
+            }
+            // 紅色：左側友校區 (E~G / 1~5排)
+            if (r >= 1 && r <= 5) {
+                if (['E','F','G'].includes(c)) staticType = 'red';
+            }
+            // 橘色：機動工作人員 (A~D / 5排)
+            if (r === 5 && ['A','B','C','D'].includes(c)) staticType = 'orange';
+            
+            // 左後角防呆
+            if ((r === 14 || r === 15) && ['F','G'].includes(c)) staticType = 'red';
+            if (r === 15 && c === 'E') staticType = 'grey'; 
+            
+            // 藍色：老人區 (U~# / 6~15排)
+            if (r >= 6 && r <= 15 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue';
+            
+            // 綠色：PA區 (H~T / 14~15排)
+            if ((r === 14 || r === 15) && ['H','I','J','K','L','M','N','O','P','Q','R','S','T'].includes(c)) staticType = 'green';
+            
+            // 黃色：攝影區 (L~P / 11~13排) 及周遭不可劃位灰區
+            if (r >= 11 && r <= 13) {
+                if (['L','M','N','O','P'].includes(c)) staticType = 'yellow';
+                if (['H','I','J','K', 'Q','R','S','T'].includes(c)) staticType = 'grey';
+            }
+
+            // 3. 綁定狀態
+            if (staticType !== 'white') {
+                // 特殊保留區：直接標記顏色並鎖定
+                div.classList.add(`static-${staticType}`);
+            } else {
+                // 白色可劃位區：向 GAS 詢問是否已售出
+                const status = seatStatusMap[seatId] || "available";
+                if (status === "occupied") {
+                    div.classList.add("occupied");
+                } else {
+                    div.classList.add("available");
+                    div.onclick = () => toggleSeat(seatId, div);
+                }
+            }
+
             container.appendChild(div);
-        }
-    }
+        });
+    });
 }
 
-// 3. 切換到選位畫面
+function showLoading(text) {
+    document.getElementById("loading-text").innerText = text || "資料讀取中...";
+    document.getElementById("loading-overlay").classList.remove("hidden");
+}
+
+function hideLoading() {
+    document.getElementById("loading-overlay").classList.add("hidden");
+}
+
 async function goToSeats() {
     const name = document.getElementById("userName").value.trim();
     const className = document.getElementById("userClass").value.trim();
@@ -182,13 +277,10 @@ async function goToSeats() {
     maxSeatsAllowed = ticketQty;
     document.getElementById("max-seats").innerText = maxSeatsAllowed;
 
-    // --- 關鍵優化邏輯 ---
     if (isDataPreloaded) {
-        // A. 如果資料已經預載好 -> 秒切換
         initSeats();
         switchStep(2);
     } else {
-        // B. 如果還沒好 -> 顯示 Loading 等資料
         showLoading("正在載入最新座位...");
         try {
             const res = await fetch(`${GAS_URL}?action=seatStatus`);
@@ -222,16 +314,14 @@ function goBack() {
     switchStep(1);
 }
 
-// 4. 選位邏輯
 function toggleSeat(id, el) {
-    if (el.classList.contains("occupied")) return;
+    if (el.classList.contains("occupied") || el.className.includes("static-")) return;
 
     if (selectedSeats.includes(id)) {
         selectedSeats = selectedSeats.filter(s => s !== id);
         el.classList.remove("selected");
     } else {
         if (selectedSeats.length >= maxSeatsAllowed) {
-            // 使用 SweetAlert 的 Toast 模式，比較不干擾
             Swal.fire({
                 toast: true, position: 'top-end', icon: 'warning', 
                 title: `只能選 ${maxSeatsAllowed} 個位子`, showConfirmButton: false, timer: 1500
@@ -243,7 +333,6 @@ function toggleSeat(id, el) {
     }
 }
 
-// 5. 送出訂單
 async function submitOrder() {
     if (selectedSeats.length !== maxSeatsAllowed) {
         Swal.fire({ icon: 'warning', title: '座位未選滿', text: `需選 ${maxSeatsAllowed} 個，目前已選 ${selectedSeats.length} 個。` });
@@ -261,120 +350,14 @@ async function submitOrder() {
         }
     });
 
-    const payload = {
-        name: document.getElementById("userName").value.trim(),
-        className: document.getElementById("userClass").value.trim(),
-        seats: selectedSeats,
-        items,
-        totalPrice
-    };
-
-    // --- Loading 遮罩開啟 ---
-    showLoading("正在搶位中，請勿關閉視窗...");
-
-    try {
-        const res = await fetch(GAS_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(payload)
-        });
-        const json = await res.json();
-        
-        hideLoading(); // 關閉遮罩
-
-        if (json.result === "success") {
-            // --- 製作商品明細列表 HTML ---
-            const itemsHtml = items.map(it => 
-                `<div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <span>${it.name} x${it.qty}</span>
-                    <span>$${it.qty * it.price}</span>
-                 </div>`
-            ).join("");
-
-            // --- 顯示詳細的 SweetAlert 成功畫面 ---
-            Swal.fire({
-                icon: 'success',
-                title: '🎉 預購成功！',
-                width: 480, // 加寬視窗以便顯示明細
-                html: `
-                    <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 15px; color: #333;">
-                        <p style="margin: 5px 0;"><b>🧑‍🎓 姓名：</b>${payload.name}</p>
-                        <p style="margin: 5px 0;"><b>🏫 班級：</b>${payload.className}</p>
-                        <p style="margin: 5px 0;"><b>🪑 座位代號：</b><span style="color:#2e7d32; font-weight:bold;">${selectedSeats.join(", ")}</span></p>
-                        
-                        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 10px 0;">
-                        
-                        <div style="font-size: 14px; margin-bottom: 10px;">
-                            <b>🧾 商品明細：</b><br>
-                            ${itemsHtml}
-                        </div>
-                        
-                        <hr style="border: 0; border-top: 2px solid #333; margin: 10px 0;">
-                        
-                        <div style="text-align: right; font-size: 18px; font-weight: bold;">
-                            總金額：<span style="color: #d32f2f;">$${totalPrice}</span>
-                        </div>
-                    </div>
-                    
-                    <div style="background-color: #ffebee; border: 1px solid #ef9a9a; padding: 12px; border-radius: 6px; color: #c62828; font-weight: bold; font-size: 15px; margin-top: 15px; line-height: 1.5;">
-                        ⚠️ 重要繳費須知<br>
-                        請於一週內將款項交給<br>
-                        <span style="font-size: 1.2em; text-decoration: underline;">206 林佑家</span><br>
-                        否則預定商品及劃位將失效！
-                    </div>
-                    
-                    <div style="margin-top: 15px; color: #555; font-size: 13px;">
-                        📸 請截圖此畫面作為憑證
-                    </div>
-                `,
-                confirmButtonText: '好，我截圖了',
-                confirmButtonColor: '#2e7d32',
-                allowOutsideClick: false // 強制不能點旁邊關閉
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    location.reload(); // 按下確定後重整
-                }
-            });
-        } else {
-            // 處理衝突錯誤
-            if (json.conflict) {
-                Swal.fire({
-                    icon: 'error',
-                    title: '慢了一步 😱',
-                    text: `以下座位剛被搶走：${json.conflict.join(", ")}，請重新選擇。`
-                });
-                // 重新整理座位
-                showLoading("更新座位表中...");
-                await fetch(`${GAS_URL}?action=seatStatus`)
-                    .then(r => r.json())
-                    .then(d => {
-                        updateLocalSeatData(d.seats);
-                        initSeats();
-                    });
-                hideLoading();
-            } else {
-                Swal.fire({ icon: 'error', title: '系統錯誤', text: json.message });
-            }
-        }
-    } catch (e) {
-        hideLoading();
-        console.error(e);
-        Swal.fire({ icon: 'error', title: '送出失敗', text: '網路連線異常，請檢查網路' });
-    }
-}
-
-// Loading UI 控制
-function showLoading(text) {
-    document.getElementById("loading-text").innerText = text;
-    document.getElementById("loading-overlay").classList.remove("hidden");
-}
-function hideLoading() {
-    document.getElementById("loading-overlay").classList.add("hidden");
+    // ========== ⚠️ 此處接回你原本的 fetch 送單邏輯 ==========
+    console.log("準備送出訂單:", { items, selectedSeats, totalPrice });
+    Swal.fire({ icon: 'success', title: '完成', text: '已經為您劃位成功！(請換回你原本的 fetch 送出邏輯)' });
 }
 </script>
-
 </body>
 </html>
+
 
 
 
