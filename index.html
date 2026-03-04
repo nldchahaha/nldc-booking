@@ -11,10 +11,11 @@
         .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #333; margin-bottom: 25px; }
         
+        /* 商品卡片優化 */
         .item-card { border: 1px solid #eee; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; background: #fff; }
         .item-name { font-weight: bold; }
         
-        /* 座位表佈局 (29欄位：7+1走道+13+1走道+7) */
+        /* 座位表優化 (配合圖片改為 29 欄位) */
         .seat-map { 
             display: grid; 
             grid-template-columns: repeat(29, minmax(18px, 1fr)); 
@@ -34,40 +35,63 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
+        .seat:active { transform: scale(0.9); }
         
-        /* 狀態顏色 */
+        /* 基礎狀態 */
         .available { background: var(--available); color: #333; }
-        .occupied { background: var(--occupied); color: #fff; cursor: not-allowed; pointer-events: none; }
+        .available:hover { border-color: #666; }
+        .occupied { background: var(--occupied); color: #fff; cursor: not-allowed; pointer-events: none; border-color: #999; }
         .selected { background: var(--selected); color: black; font-weight: bold; border: 2px solid #fbc02d; }
         
-        /* 圖片對應色塊：這些地方顯示為已劃位 (不可選) */
-        .seat.static-red { background: #e53935; border-color: #b71c1c; pointer-events: none; opacity: 0.8; } /* 友校 */
-        .seat.static-orange { background: #fb8c00; border-color: #e65100; pointer-events: none; opacity: 0.8; } /* 工作人員 */
-        .seat.static-yellow { background: #fdd835; border-color: #f57f17; pointer-events: none; opacity: 0.8; } /* 攝影 */
-        .seat.static-blue { background: #1e88e5; border-color: #0d47a1; pointer-events: none; opacity: 0.8; } /* 老人區 */
-        .seat.static-green { background: #43a047; border-color: #1b5e20; pointer-events: none; opacity: 0.8; } /* PA區 */
-        .seat.static-grey { background: #9e9e9e; border-color: #616161; pointer-events: none; opacity: 0.8; } /* 靜態不可選 */
-        .seat.aisle { background: #fce4ec; border: none; pointer-events: none; } /* 粉紅色走道 */
+        /* 特殊區域靜態顏色 (禁止劃位) */
+        .seat.static-red { background: #e53935; color: transparent; border-color: #b71c1c; cursor: not-allowed; pointer-events: none; }
+        .seat.static-orange { background: #fb8c00; color: transparent; border-color: #e65100; cursor: not-allowed; pointer-events: none; }
+        .seat.static-yellow { background: #fdd835; color: transparent; border-color: #f57f17; cursor: not-allowed; pointer-events: none; }
+        .seat.static-blue { background: #1e88e5; color: transparent; border-color: #0d47a1; cursor: not-allowed; pointer-events: none; }
+        .seat.static-green { background: #43a047; color: transparent; border-color: #1b5e20; cursor: not-allowed; pointer-events: none; }
+        .seat.static-grey { background: #9e9e9e; color: transparent; border-color: #616161; cursor: not-allowed; pointer-events: none; }
+        .seat.aisle { background: transparent; border: none; pointer-events: none; } /* 走道隱藏 */
         
         .hidden { display: none !important; }
-        .btn { background: #212121; color: white; padding: 12px 20px; border: none; cursor: pointer; margin-top: 20px; width: 100%; border-radius: 6px; font-size: 16px; }
+        .btn { 
+            background: #212121; color: white; padding: 12px 20px; border: none; 
+            cursor: pointer; margin-top: 20px; width: 100%; border-radius: 6px; font-size: 16px; 
+        }
+        .btn:active { background: #000; }
         input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100px; }
         #userName, #userClass { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
 
-        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; }
-        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid #FFEB3B; border-radius: 50%; animation: spin 1s linear infinite; }
+        /* Loading 遮罩樣式 */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 9999; color: white;
+            backdrop-filter: blur(3px);
+        }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid #FFEB3B;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #loading-text { font-size: 1.1em; letter-spacing: 1px; font-weight: 300; }
         
-        .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 15px 0; font-size: 11px; }
+        /* 圖例說明樣式 */
+        .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 15px; font-size: 12px; }
         .legend-item { display: flex; align-items: center; gap: 4px; }
-        .legend-box { width: 14px; height: 14px; border-radius: 2px; border: 1px solid #ccc; }
+        .legend-box { width: 15px; height: 15px; border-radius: 3px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
 
 <div id="loading-overlay" class="hidden">
     <div class="spinner"></div>
-    <p id="loading-text">傳送訂單中...</p>
+    <div id="loading-text">資料讀取中...</div>
 </div>
 
 <div class="container">
@@ -78,10 +102,19 @@
         <input type="text" id="userName" placeholder="請輸入真實姓名" required>
         <input type="text" id="userClass" placeholder="班級 (例：201)" required>
         
-        <div id="products">
-            <div class="item-card"><span>門票 ($150)</span><input type="number" class="prod-qty" data-name="門票" data-price="150" value="0" min="0"></div>
-            <div class="item-card"><span>組合包 (門票+短袖) ($450)</span><input type="number" class="prod-qty" data-name="組合包" data-price="450" value="0" min="0"></div>
-            <div class="item-card"><span>外套 ($550)</span><input type="number" class="prod-qty" data-name="外套" data-price="550" value="0" min="0"></div>
+        <div id="products" style="margin-top:20px;">
+            <div class="item-card">
+                <span class="item-name">門票 ($150)</span>
+                <input type="number" class="prod-qty" data-name="門票" data-price="150" value="0" min="0">
+            </div>
+            <div class="item-card">
+                <span class="item-name">組合包 (門票+短袖) ($450)</span>
+                <input type="number" class="prod-qty" data-name="組合包" data-price="450" value="0" min="0">
+            </div>
+            <div class="item-card">
+                <span class="item-name">外套 ($550)</span>
+                <input type="number" class="prod-qty" data-name="外套" data-price="550" value="0" min="0">
+            </div>
         </div>
         <button class="btn" onclick="goToSeats()">下一步：選擇座位</button>
     </div>
@@ -90,40 +123,41 @@
         <h3>2. 劃位 (需選 <span id="max-seats">0</span> 位)</h3>
         
         <div class="legend">
-            <div class="legend-item"><div class="legend-box" style="background:#fff;"></div>可選</div>
-            <div class="legend-item"><div class="legend-box" style="background:#e53935;"></div>友校</div>
-            <div class="legend-item"><div class="legend-box" style="background:#fb8c00;"></div>工作人員</div>
-            <div class="legend-item"><div class="legend-box" style="background:#fdd835;"></div>攝影</div>
-            <div class="legend-item"><div class="legend-box" style="background:#1e88e5;"></div>老人區</div>
-            <div class="legend-item"><div class="legend-box" style="background:#43a047;"></div>PA區</div>
-            <div class="legend-item"><div class="legend-box" style="background:#fce4ec; border:none;"></div>走道</div>
+            <div class="legend-item"><div class="legend-box" style="background:#fff;"></div>可劃位</div>
+            <div class="legend-item"><div class="legend-box" style="background:#FFEB3B; border-color:#fbc02d;"></div>已選擇</div>
+            <div class="legend-item"><div class="legend-box" style="background:#bdbdbd;"></div>已售出</div>
+            <div class="legend-item"><div class="legend-box" style="background:#e53935; border-color:#b71c1c;"></div>友校/貴賓</div>
+            <div class="legend-item"><div class="legend-box" style="background:#1e88e5; border-color:#0d47a1;"></div>老人區</div>
         </div>
 
-        <div style="text-align: center; background: #333; color: white; padding: 5px; font-size: 12px; border-radius: 4px;">舞台 STAGE</div>
+        <div style="text-align: center; background: #eee; padding: 5px; margin-bottom: 10px; font-size: 12px; border-radius: 4px; font-weight: bold;">⬆️ 前方舞台 ⬆️</div>
         <div class="seat-map" id="seatContainer"></div>
-        
         <button class="btn" style="background: #2e7d32;" onclick="submitOrder()">確認送出訂單</button>
         <button class="btn" style="background: #757575; margin-top: 10px;" onclick="goBack()">回上一步</button>
     </div>
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxISgZelIB76CIBM3yhl_3I5raRh7n8PaihF6aZmqCpdo3xHY3-ABXyvyclu8AtUTel/exec"; // ⬅️ 務必更換此處
+// ⚠️ 記得把這裡換成你最新的 GAS 發布網址！
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxISgZelIB76CIBM3yhl_3I5raRh7n8PaihF6aZmqCpdo3xHY3-ABXyvyclu8AtUTel/exec"; 
 
 let selectedSeats = [];
 let maxSeatsAllowed = 0;
 let seatStatusMap = {}; 
-let isDataPreloaded = false;
+let isDataPreloaded = false; 
 
 window.onload = function() {
+    console.log("🚀 系統啟動，開始預載座位...");
     fetch(`${GAS_URL}?action=seatStatus`)
         .then(res => res.json())
         .then(json => {
             if (json.result === "success") {
                 updateLocalSeatData(json.seats);
                 isDataPreloaded = true;
+                console.log("✅ 座位表預載完成！");
             }
-        });
+        })
+        .catch(err => console.log("預載失敗 (可能是網路問題，稍後會自動重試)"));
 };
 
 function updateLocalSeatData(seatsArray) {
@@ -133,49 +167,45 @@ function updateLocalSeatData(seatsArray) {
     });
 }
 
+// 渲染座位邏輯 (精準對應圖片配置)
 function initSeats() {
     const container = document.getElementById("seatContainer");
     container.innerHTML = "";
     selectedSeats = []; 
 
     const cols = ['A','B','C','D','E','F','G', 'GAP1', 'H','I','J','K','L','M','N','O','P','Q','R','S','T', 'GAP2', 'U','V','W','X','Y','Z','#'];
-    const rows = [1, 2, 3, 4, 5, 'GAP_H', 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    const rows = [1, 2, 3, 4, 5, 'GAP3', 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
     rows.forEach(r => {
         cols.forEach(c => {
             const div = document.createElement("div");
-            
-            // 處理走道 (粉紅色)
-            if (r === 'GAP_H' || c === 'GAP1' || c === 'GAP2') {
-                div.className = "seat aisle";
+
+            if (r === 'GAP3' || c === 'GAP1' || c === 'GAP2') {
+                div.classList.add("seat", "aisle");
                 container.appendChild(div);
                 return;
             }
 
             const seatId = c + r;
-            div.className = "seat";
+            div.classList.add("seat");
             div.innerText = seatId;
 
-            // 邏輯判斷特殊色塊
-            let type = 'white'; 
+            let staticType = 'white'; 
             
-            // 紅色區 (友校/貴賓)
-            if ((r <= 2 && ['A','B','C','D'].includes(c)) || (r <= 5 && ['E','F','G'].includes(c)) || (r >= 14 && ['F','G'].includes(c))) type = 'red';
-            // 橘色 (工作人員)
-            else if (r === 5 && ['A','B','C','D'].includes(c)) type = 'orange';
-            // 藍色 (老人區)
-            else if (r >= 6 && ['U','V','W','X','Y','Z','#'].includes(c)) type = 'blue';
-            // 綠色 (PA)
-            else if (r >= 14 && ['H','I','J','K','L','M','N','O','P','Q','R','S','T'].includes(c)) type = 'green';
-            // 黃色 (攝影)
-            else if (r >= 11 && r <= 13 && ['L','M','N','O','P'].includes(c)) type = 'yellow';
-            // 灰色 (不可選)
-            else if (r >= 11 && r <= 13 && ['H','I','J','K','Q','R','S','T'].includes(c)) type = 'grey';
-            else if (r === 15 && c === 'E') type = 'grey';
+            if (r === 1 || r === 2) { if (['A','B','C','D'].includes(c)) staticType = 'red'; }
+            if (r >= 1 && r <= 5) { if (['E','F','G'].includes(c)) staticType = 'red'; }
+            if (r === 5 && ['A','B','C','D'].includes(c)) staticType = 'orange';
+            if ((r === 14 || r === 15) && ['F','G'].includes(c)) staticType = 'red';
+            if (r === 15 && c === 'E') staticType = 'grey'; 
+            if (r >= 6 && r <= 15 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue';
+            if ((r === 14 || r === 15) && ['H','I','J','K','L','M','N','O','P','Q','R','S','T'].includes(c)) staticType = 'green';
+            if (r >= 11 && r <= 13) {
+                if (['L','M','N','O','P'].includes(c)) staticType = 'yellow';
+                if (['H','I','J','K', 'Q','R','S','T'].includes(c)) staticType = 'grey';
+            }
 
-            if (type !== 'white') {
-                div.classList.add(`static-${type}`);
-                div.innerText = ""; // 特殊區不顯示號碼較美觀
+            if (staticType !== 'white') {
+                div.classList.add(`static-${staticType}`);
             } else {
                 const status = seatStatusMap[seatId] || "available";
                 if (status === "occupied") {
@@ -185,18 +215,95 @@ function initSeats() {
                     div.onclick = () => toggleSeat(seatId, div);
                 }
             }
+
             container.appendChild(div);
         });
     });
 }
 
+function showLoading(text) {
+    document.getElementById("loading-text").innerText = text || "資料讀取中...";
+    document.getElementById("loading-overlay").classList.remove("hidden");
+}
+
+function hideLoading() {
+    document.getElementById("loading-overlay").classList.add("hidden");
+}
+
+async function goToSeats() {
+    const name = document.getElementById("userName").value.trim();
+    const className = document.getElementById("userClass").value.trim();
+    if (!name || !className) {
+        Swal.fire({ icon: 'warning', title: '資料未填', text: '請輸入姓名與班級！' });
+        return;
+    }
+
+    let ticketQty = 0;
+    document.querySelectorAll(".prod-qty").forEach(input => {
+        const itemName = input.dataset.name;
+        const qty = parseInt(input.value || "0", 10);
+        if ((itemName === "門票" || itemName === "組合包") && qty > 0) {
+            ticketQty += qty;
+        }
+    });
+
+    if (ticketQty <= 0) {
+        Swal.fire({ icon: 'info', title: '尚未購票', text: '請至少購買一張門票或組合包才能劃位！' });
+        return;
+    }
+
+    maxSeatsAllowed = ticketQty;
+    document.getElementById("max-seats").innerText = maxSeatsAllowed;
+
+    if (isDataPreloaded) {
+        initSeats();
+        switchStep(2);
+    } else {
+        showLoading("正在載入最新座位...");
+        try {
+            const res = await fetch(`${GAS_URL}?action=seatStatus`);
+            const json = await res.json();
+            if (json.result === "success") {
+                updateLocalSeatData(json.seats);
+                initSeats();
+                switchStep(2);
+            } else {
+                throw new Error("Load failed");
+            }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: '連線錯誤', text: '請檢查網路狀態後重試' });
+        } finally {
+            hideLoading();
+        }
+    }
+}
+
+function switchStep(step) {
+    if (step === 2) {
+        document.getElementById("step-info").classList.add("hidden");
+        document.getElementById("step-seats").classList.remove("hidden");
+    } else {
+        document.getElementById("step-info").classList.remove("hidden");
+        document.getElementById("step-seats").classList.add("hidden");
+    }
+}
+
+function goBack() {
+    switchStep(1);
+}
+
 function toggleSeat(id, el) {
+    if (el.classList.contains("occupied") || el.className.includes("static-")) return;
+
     if (selectedSeats.includes(id)) {
         selectedSeats = selectedSeats.filter(s => s !== id);
         el.classList.remove("selected");
     } else {
         if (selectedSeats.length >= maxSeatsAllowed) {
-            Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: `只能選 ${maxSeatsAllowed} 個位子`, showConfirmButton: false, timer: 1500 });
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'warning', 
+                title: `只能選 ${maxSeatsAllowed} 個位子`, showConfirmButton: false, timer: 1500
+            });
             return;
         }
         selectedSeats.push(id);
@@ -204,92 +311,101 @@ function toggleSeat(id, el) {
     }
 }
 
-async function goToSeats() {
-    const name = document.getElementById("userName").value.trim();
-    const className = document.getElementById("userClass").value.trim();
-    if (!name || !className) { Swal.fire('請輸入姓名與班級'); return; }
-
-    let ticketQty = 0;
-    document.querySelectorAll(".prod-qty").forEach(input => {
-        if (['門票', '組合包'].includes(input.dataset.name)) ticketQty += parseInt(input.value || 0);
-    });
-
-    if (ticketQty <= 0) { Swal.fire('請至少購買一張票'); return; }
-
-    maxSeatsAllowed = ticketQty;
-    document.getElementById("max-seats").innerText = maxSeatsAllowed;
-    
-    document.getElementById("loading-overlay").classList.remove("hidden");
-    // 強制重新抓取最新座位狀態
-    const res = await fetch(`${GAS_URL}?action=seatStatus`);
-    const json = await res.json();
-    updateLocalSeatData(json.seats);
-    initSeats();
-    document.getElementById("loading-overlay").classList.add("hidden");
-    
-    document.getElementById("step-info").classList.add("hidden");
-    document.getElementById("step-seats").classList.remove("hidden");
-}
-
-function goBack() {
-    document.getElementById("step-info").classList.remove("hidden");
-    document.getElementById("step-seats").classList.add("hidden");
-}
-
+// 👑 全新升級：送出訂單與最終明細邏輯
 async function submitOrder() {
     if (selectedSeats.length !== maxSeatsAllowed) {
-        Swal.fire(`需選滿 ${maxSeatsAllowed} 個位子`);
+        Swal.fire({ icon: 'warning', title: '座位未選滿', text: `需選 ${maxSeatsAllowed} 個，目前已選 ${selectedSeats.length} 個。` });
         return;
     }
 
-    const result = await Swal.fire({
-        title: '確認送出？',
-        text: "送出後無法自行修改座位",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: '確定送出'
-    });
-
-    if (!result.isConfirmed) return;
-
-    document.getElementById("loading-overlay").classList.remove("hidden");
-
+    const name = document.getElementById("userName").value.trim();
+    const className = document.getElementById("userClass").value.trim();
     const items = [];
     let totalPrice = 0;
+    let itemDetailsHtml = ""; // 用來組裝明細的 HTML
+
+    // 計算商品與金額
     document.querySelectorAll(".prod-qty").forEach(input => {
-        const qty = parseInt(input.value || 0);
+        const qty = parseInt(input.value || "0", 10);
         if (qty > 0) {
-            items.push({ name: input.dataset.name, qty: qty, price: parseInt(input.dataset.price) });
-            totalPrice += qty * parseInt(input.dataset.price);
+            const price = parseInt(input.dataset.price, 10);
+            const subtotal = qty * price;
+            items.push({ name: input.dataset.name, qty, price });
+            totalPrice += subtotal;
+            // 寫入明細清單
+            itemDetailsHtml += `<li>${input.dataset.name}：${qty}份 (小計 $${subtotal})</li>`;
         }
     });
 
     const payload = {
-        name: document.getElementById("userName").value,
-        className: document.getElementById("userClass").value,
+        name: name,
+        className: className,
         items: items,
         seats: selectedSeats,
         totalPrice: totalPrice
     };
 
+    // 1. 顯示轉圈圈
+    showLoading("訂單傳送中，請稍候...");
+
     try {
+        // 2. 送出資料給 GAS
         const response = await fetch(GAS_URL, {
             method: "POST",
             body: JSON.stringify(payload)
         });
+        
         const resData = await response.json();
 
+        // 3. 隱藏轉圈圈
+        hideLoading();
+
         if (resData.result === "success") {
-            await Swal.fire('訂購成功', '請記得在期限內完成繳費', 'success');
-            location.reload();
+            // 成功：組裝最終明細收據
+            const receiptHtml = `
+                <div style="text-align: left; font-size: 16px; line-height: 1.8; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                    <p><strong>👤 姓名：</strong>${name}</p>
+                    <p><strong>🏫 班級：</strong>${className}</p>
+                    <p><strong>💺 座位代號：</strong><span style="color:#2e7d32; font-weight:bold;">${selectedSeats.join(", ")}</span></p>
+                    <p><strong>🛍️ 商品明細：</strong></p>
+                    <ul style="margin-top:0;">${itemDetailsHtml}</ul>
+                    <p><strong>💰 總金額：</strong><span style="color: red; font-size: 1.2em; font-weight: bold;">$${totalPrice}</span></p>
+                    <hr style="border: 0.5px solid #ccc; margin: 15px 0;">
+                    <p style="color: #d32f2f; font-weight: bold; font-size: 15px;">⚠️ 提醒：請於一週內將款項交給 206班 林佑家，否則預訂商品與劃位將自動失效！</p>
+                </div>
+            `;
+
+            // 顯示漂亮的回執單
+            await Swal.fire({
+                icon: 'success',
+                title: '🎉 訂購與劃位成功！',
+                html: receiptHtml,
+                confirmButtonText: '確定',
+                allowOutsideClick: false // 強制使用者點擊確定
+            });
+            
+            // 點擊確定後，重新整理網頁，準備接下一張單
+            location.reload(); 
+
         } else {
-            Swal.fire('劃位失敗', '此座位可能剛被搶走，請重新選擇', 'error');
-            location.reload();
+            // 失敗：座位被搶走或其他錯誤
+            Swal.fire({
+                icon: 'error',
+                title: '劃位失敗',
+                text: resData.message || '此座位可能剛被搶走，請重新選擇！'
+            });
+            // 讓使用者可以重新選位
+            isDataPreloaded = false; // 強制下次重新抓取資料
         }
-    } catch (e) {
-        Swal.fire('連線錯誤', '請稍後再試', 'error');
-    } finally {
-        document.getElementById("loading-overlay").classList.add("hidden");
+
+    } catch (err) {
+        // 網路斷線或其他嚴重錯誤
+        hideLoading();
+        Swal.fire({
+            icon: 'error',
+            title: '連線錯誤',
+            text: '傳送失敗，請檢查網路連線後再試一次！'
+        });
     }
 }
 </script>
