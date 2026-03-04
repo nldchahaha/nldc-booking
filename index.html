@@ -139,7 +139,7 @@
 
 <script>
 // ⚠️ 記得把這裡換成你最新的 GAS 發布網址！
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxISgZelIB76CIBM3yhl_3I5raRh7n8PaihF6aZmqCpdo3xHY3-ABXyvyclu8AtUTel/exec"; 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxKtz-Hxd8PZZt6L1iqADP5kjW22MkZAOlWDREBQYTmh4g8cYZuFu54i9ylwzSJsG-b/exec"; 
 
 let selectedSeats = [];
 let maxSeatsAllowed = 0;
@@ -197,7 +197,10 @@ function initSeats() {
             if (r === 5 && ['A','B','C','D'].includes(c)) staticType = 'orange';
             if ((r === 14 || r === 15) && ['F','G'].includes(c)) staticType = 'red';
             if (r === 15 && c === 'E') staticType = 'grey'; 
-            if (r >= 6 && r <= 15 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue';
+            
+            // 🌟 修正點：藍色(老人區) 改為 U~# 的 1~5 排
+            if (r >= 1 && r <= 5 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue';
+            
             if ((r === 14 || r === 15) && ['H','I','J','K','L','M','N','O','P','Q','R','S','T'].includes(c)) staticType = 'green';
             if (r >= 11 && r <= 13) {
                 if (['L','M','N','O','P'].includes(c)) staticType = 'yellow';
@@ -311,7 +314,7 @@ function toggleSeat(id, el) {
     }
 }
 
-// 👑 全新升級：送出訂單與最終明細邏輯
+// 送出訂單與最終明細邏輯
 async function submitOrder() {
     if (selectedSeats.length !== maxSeatsAllowed) {
         Swal.fire({ icon: 'warning', title: '座位未選滿', text: `需選 ${maxSeatsAllowed} 個，目前已選 ${selectedSeats.length} 個。` });
@@ -322,9 +325,8 @@ async function submitOrder() {
     const className = document.getElementById("userClass").value.trim();
     const items = [];
     let totalPrice = 0;
-    let itemDetailsHtml = ""; // 用來組裝明細的 HTML
+    let itemDetailsHtml = ""; 
 
-    // 計算商品與金額
     document.querySelectorAll(".prod-qty").forEach(input => {
         const qty = parseInt(input.value || "0", 10);
         if (qty > 0) {
@@ -332,7 +334,6 @@ async function submitOrder() {
             const subtotal = qty * price;
             items.push({ name: input.dataset.name, qty, price });
             totalPrice += subtotal;
-            // 寫入明細清單
             itemDetailsHtml += `<li>${input.dataset.name}：${qty}份 (小計 $${subtotal})</li>`;
         }
     });
@@ -345,23 +346,18 @@ async function submitOrder() {
         totalPrice: totalPrice
     };
 
-    // 1. 顯示轉圈圈
     showLoading("訂單傳送中，請稍候...");
 
     try {
-        // 2. 送出資料給 GAS
         const response = await fetch(GAS_URL, {
             method: "POST",
             body: JSON.stringify(payload)
         });
         
         const resData = await response.json();
-
-        // 3. 隱藏轉圈圈
         hideLoading();
 
         if (resData.result === "success") {
-            // 成功：組裝最終明細收據
             const receiptHtml = `
                 <div style="text-align: left; font-size: 16px; line-height: 1.8; background: #f9f9f9; padding: 15px; border-radius: 8px;">
                     <p><strong>👤 姓名：</strong>${name}</p>
@@ -375,31 +371,26 @@ async function submitOrder() {
                 </div>
             `;
 
-            // 顯示漂亮的回執單
             await Swal.fire({
                 icon: 'success',
                 title: '🎉 訂購與劃位成功！',
                 html: receiptHtml,
                 confirmButtonText: '確定',
-                allowOutsideClick: false // 強制使用者點擊確定
+                allowOutsideClick: false 
             });
             
-            // 點擊確定後，重新整理網頁，準備接下一張單
             location.reload(); 
 
         } else {
-            // 失敗：座位被搶走或其他錯誤
             Swal.fire({
                 icon: 'error',
                 title: '劃位失敗',
                 text: resData.message || '此座位可能剛被搶走，請重新選擇！'
             });
-            // 讓使用者可以重新選位
-            isDataPreloaded = false; // 強制下次重新抓取資料
+            isDataPreloaded = false; 
         }
 
     } catch (err) {
-        // 網路斷線或其他嚴重錯誤
         hideLoading();
         Swal.fire({
             icon: 'error',
