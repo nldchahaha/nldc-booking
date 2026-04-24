@@ -8,20 +8,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --available: #ffffff; --occupied: #bdbdbd; --selected: #FFEB3B; }
+        
+        /* 更新背景為你的專屬圖片 */
         body { 
-            background: linear-gradient(180deg, rgba(175,106,113,1) 0%, rgba(70,6,12,1) 100%);
+            background: url('./images/bg.png') center top / cover fixed;
+            background-color: #5a2026; /* 圖片載入前的底色 */
             min-height: 100vh;
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding-bottom: 80px; /* 預留底部按鈕空間 */
+            padding-bottom: 80px;
         }
         
-        /* 隱藏原生捲軸但保持可捲動 */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 座位表優化 (配合圖片改為 29 欄位) */
         .seat-map { 
             display: grid; 
             grid-template-columns: repeat(29, minmax(18px, 1fr)); 
@@ -29,8 +30,9 @@
             margin-top: 20px; 
             overflow-x: auto; 
             padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.4); /* 加深背景讓座位更明顯 */
             border-radius: 8px;
+            backdrop-filter: blur(2px);
         }
         .seat {
             aspect-ratio: 1 / 1; 
@@ -42,12 +44,11 @@
         }
         .seat:active { transform: scale(0.9); }
         
-        /* 基礎狀態 */
         .available { background: var(--available); }
         .occupied { background: var(--occupied); color: #fff; cursor: not-allowed; opacity: 0.7; }
         .selected { background: var(--selected); color: black; font-weight: bold; }
         
-        /* 特殊區域靜態顏色 - 依據 M3 視覺規範，將原本的亮橘色調整為暗金/土黃色以避免突兀 */
+        /* 維持原本沒有橘色的設定 */
         .seat.static-red { background: #b71c1c; color: transparent; cursor: not-allowed; }
         .seat.static-gold { background: #c0ca33; color: transparent; cursor: not-allowed; } 
         .seat.static-yellow { background: #fbc02d; color: transparent; cursor: not-allowed; }
@@ -56,10 +57,8 @@
         .seat.static-grey { background: #757575; color: transparent; cursor: not-allowed; }
         .seat.aisle { background: transparent; pointer-events: none; }
 
-        /* 👇 就是這行，一定要有 !important */
         .hidden { display: none !important; }
         
-        /* Loading 遮罩 */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8);
@@ -81,20 +80,19 @@
     <div id="loading-text" class="text-white tracking-widest">資料讀取中...</div>
 </div>
 
-<div class="sticky top-0 z-50 bg-[#a05c63] w-full h-[80px] flex flex-col justify-center items-center shadow-lg">
-    <h1 class="text-xl font-bold tracking-wider text-white">NLDC《M3》</h1>
-    <p class="text-xs text-[#3f0000] font-semibold">周邊預購＆訂票系統</p>
+<div class="sticky top-0 z-50 w-full h-[80px] flex justify-center items-center shadow-lg bg-black/30 backdrop-blur-md border-b border-white/10">
+    <img src="./images/header.png" alt="NLDC M3 周邊預購＆訂票系統" class="h-14 object-contain">
 </div>
 
 <div class="max-w-md mx-auto p-5">
     
     <div id="step-1" class="space-y-8">
         
-        <div class="space-y-3">
+        <div class="space-y-3 bg-black/40 p-5 rounded-xl backdrop-blur-sm border border-white/10">
             <h2 class="text-xl font-semibold tracking-wide">訂購資料（必填）</h2>
-            <input type="text" id="userName" placeholder="姓名" class="w-full h-12 px-4 bg-white/10 border border-white/50 rounded-lg text-white placeholder-white/70 focus:border-white focus:bg-white/20 transition-all outline-none">
-            <input type="tel" id="userPhone" placeholder="聯絡電話" class="w-full h-12 px-4 bg-white/10 border border-white/50 rounded-lg text-white placeholder-white/70 focus:border-white focus:bg-white/20 transition-all outline-none">
-            <input type="text" id="userClass" placeholder="班級／付款代理人" class="w-full h-12 px-4 bg-white/10 border border-white/50 rounded-lg text-white placeholder-white/70 focus:border-white focus:bg-white/20 transition-all outline-none">
+            <input type="text" id="userName" placeholder="姓名" class="w-full h-12 px-4 bg-white/10 border border-white/30 rounded-lg text-white placeholder-white/70 focus:border-white focus:bg-white/20 transition-all outline-none">
+            <input type="tel" id="userPhone" placeholder="聯絡電話" class="w-full h-12 px-4 bg-white/10 border border-white/30 rounded-lg text-white placeholder-white/70 focus:border-white focus:bg-white/20 transition-all outline-none">
+            <input type="text" id="userClass" placeholder="班級／付款代理人" class="w-full h-12 px-4 bg-white/10 border border-white/30 rounded-lg text-white placeholder-white/70 focus:border-white focus:bg-white/20 transition-all outline-none">
             <p class="text-xs text-white/70">（非本校觀眾請將款項交由本校學生付款）</p>
         </div>
 
@@ -102,8 +100,8 @@
         
     </div>
 
-    <div id="step-2" class="hidden space-y-4">
-        <h2 class="text-xl font-semibold tracking-wide">劃位 (需選 <span id="max-seats" class="text-yellow-300">0</span> 位)</h2>
+    <div id="step-2" class="hidden space-y-4 bg-black/40 p-5 rounded-xl backdrop-blur-sm border border-white/10">
+        <h2 class="text-xl font-semibold tracking-wide">劃位 (需選 <span id="max-seats" class="text-yellow-300 font-bold">0</span> 位)</h2>
         
         <div class="flex flex-wrap gap-3 text-xs justify-center bg-white/10 p-3 rounded-lg">
             <div class="flex items-center gap-1"><div class="w-4 h-4 bg-white rounded-sm"></div>可劃位</div>
@@ -113,65 +111,63 @@
             <div class="flex items-center gap-1"><div class="w-4 h-4 bg-[#1976d2] rounded-sm"></div>老人區</div>
         </div>
 
-        <div class="text-center bg-white/20 p-2 text-sm font-bold rounded-lg tracking-widest">⬆️ 前方舞台 ⬆️</div>
+        <div class="text-center bg-white/20 p-2 text-sm font-bold rounded-lg tracking-widest mt-2">⬆️ 前方舞台 ⬆️</div>
         <div class="seat-map" id="seatContainer"></div>
         
         <div class="flex gap-3 mt-6">
-            <button onclick="goBack()" class="flex-1 bg-gray-600 py-3 rounded-lg font-semibold active:bg-gray-700">上一步</button>
-            <button onclick="submitOrder()" class="flex-[2] bg-green-600 py-3 rounded-lg font-semibold active:bg-green-700">確認劃位並送出</button>
+            <button onclick="goBack()" class="flex-1 bg-gray-600/80 py-3 rounded-lg font-semibold active:bg-gray-700 backdrop-blur-sm">上一步</button>
+            <button onclick="submitOrder()" class="flex-[2] bg-red-800/90 py-3 rounded-lg font-semibold active:bg-red-900 backdrop-blur-sm shadow-lg border border-red-500/30">確認劃位並送出</button>
         </div>
     </div>
 </div>
 
-<div id="bottom-bar" class="fixed bottom-0 left-0 w-full bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] z-40 transition-transform">
-    <button onclick="goToSeats()" id="next-btn" class="w-full max-w-md mx-auto block bg-black text-white font-semibold text-lg py-3 rounded-xl disabled:bg-gray-400 disabled:cursor-not-allowed">
+<div id="bottom-bar" class="fixed bottom-0 left-0 w-full bg-[#1a0b0d] p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] z-40 transition-transform border-t border-white/10">
+    <button onclick="goToSeats()" id="next-btn" class="w-full max-w-md mx-auto block bg-white text-black font-bold text-lg py-3 rounded-xl disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">
         選擇商品中...
     </button>
 </div>
 
 <script>
-// ⚠️ 替換成你的 GAS 網址
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwUC8v6u6jwj5VTOesdqZ4bHbApZ6QuaQnx27-KP20OnpeXsth7O6CDzvXRjDnhpMiJ/exec"; 
 
-// --- 商品資料庫 ---
-// ticketCount 決定該品項可換取多少個座位
+// 加入了 image 欄位，請將裁切好的圖片放進 images 資料夾並對應檔名
 const productCategories = [
     {
         title: "早鳥周邊套票",
         id: "early-bird",
         items: [
-            { id: "eb1", name: "入門組：門票+吊飾+杯套", price: 180, original: 240, ticketCount: 1 },
-            { id: "eb2", name: "應援組：門票+短袖B", price: 380, original: 460, ticketCount: 1 },
-            { id: "eb3", name: "收藏組：門票+短袖A+吊飾", price: 480, original: 560, ticketCount: 1 }
+            { id: "eb1", name: "入門組：門票+吊飾+杯套", price: 180, original: 240, ticketCount: 1, image: "./images/item-eb1.png" },
+            { id: "eb2", name: "應援組：門票+短袖B", price: 380, original: 460, ticketCount: 1, image: "./images/item-eb2.png" },
+            { id: "eb3", name: "收藏組：門票+短袖A+吊飾", price: 480, original: 560, ticketCount: 1, image: "./images/item-eb3.png" }
         ]
     },
     {
         title: "優惠周邊組合",
         id: "combo",
         items: [
-            { id: "cb1", name: "小物雙享：吊飾+杯套", price: 130, original: 145, ticketCount: 0 },
-            { id: "cb2", name: "舞者穿搭：短袖B+吊飾", price: 420, original: 440, ticketCount: 0 },
-            { id: "cb3", name: "雙款短袖：短袖A+短袖B", price: 780, original: 800, ticketCount: 0 },
-            { id: "cb4", name: "戰袍全集：外套+短袖A+短袖B", price: 1580, original: 1650, ticketCount: 0 }
+            { id: "cb1", name: "小物雙享：吊飾+杯套", price: 130, original: 145, ticketCount: 0, image: "./images/item-cb1.png" },
+            { id: "cb2", name: "舞者穿搭：短袖B+吊飾", price: 420, original: 440, ticketCount: 0, image: "./images/item-cb2.png" },
+            { id: "cb3", name: "雙款短袖：短袖A+短袖B", price: 780, original: 800, ticketCount: 0, image: "./images/item-cb3.png" },
+            { id: "cb4", name: "戰袍全集：外套+短袖A+短袖B", price: 1580, original: 1650, ticketCount: 0, image: "./images/item-cb4.png" }
         ]
     },
     {
         title: "周邊單品",
         id: "single",
         items: [
-            { id: "sg1", name: "短袖A (厚白)", price: 420, ticketCount: 0 },
-            { id: "sg2", name: "短袖B (薄色)", price: 380, ticketCount: 0 },
-            { id: "sg3", name: "外套", price: 850, ticketCount: 0 },
-            { id: "sg4", name: "壓克力吊飾", price: 60, ticketCount: 0 },
-            { id: "sg5", name: "杯套", price: 85, ticketCount: 0 }
+            { id: "sg1", name: "短袖A (厚白)", price: 420, ticketCount: 0, image: "./images/item-sg1.png" },
+            { id: "sg2", name: "短袖B (薄色)", price: 380, ticketCount: 0, image: "./images/item-sg2.png" },
+            { id: "sg3", name: "外套", price: 850, ticketCount: 0, image: "./images/item-sg3.png" },
+            { id: "sg4", name: "壓克力吊飾", price: 60, ticketCount: 0, image: "./images/item-sg4.png" },
+            { id: "sg5", name: "杯套", price: 85, ticketCount: 0, image: "./images/item-sg5.png" }
         ]
     },
     {
         title: "門票",
         id: "ticket",
         items: [
-            { id: "tk1", name: "NLDC《M3》早鳥票", price: 80, original: 150, ticketCount: 1 },
-            { id: "tk2", name: "NLDC《M3》一般票", price: 150, ticketCount: 1 }
+            { id: "tk1", name: "NLDC《M3》早鳥票", price: 80, original: 150, ticketCount: 1, image: "./images/item-tk1.png" },
+            { id: "tk2", name: "NLDC《M3》一般票", price: 150, ticketCount: 1, image: "./images/item-tk2.png" }
         ]
     }
 ];
@@ -183,32 +179,42 @@ let selectedSeats = [];
 let seatStatusMap = {}; 
 let isDataPreloaded = false; 
 
-// 初始化商品介面
 function renderProducts() {
     const container = document.getElementById('product-container');
     let html = '';
 
     productCategories.forEach(category => {
         html += `<div class="space-y-3">
-            <h2 class="text-xl font-semibold tracking-wide">${category.title}</h2>
+            <h2 class="text-xl font-bold tracking-wide drop-shadow-md">${category.title}</h2>
             <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-4">`;
         
         category.items.forEach(item => {
-            cart[item.id] = 0; // 初始化購物車
+            cart[item.id] = 0; 
             html += `
-            <div class="flex-none w-[220px] bg-white/10 rounded-xl p-4 flex flex-col justify-between shadow-lg border border-white/5 relative">
-                <div class="mb-8">
-                    <h3 class="font-semibold text-sm leading-tight mb-2">${item.name}</h3>
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold">$${item.price}</span>
-                        ${item.original ? `<span class="text-sm text-white/50 line-through">$${item.original}</span>` : ''}
-                    </div>
-                </div>
+            <div class="flex-none w-[240px] bg-black/60 rounded-xl overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.5)] border border-white/10 relative flex flex-col">
                 
-                <div class="absolute bottom-4 right-4 flex items-center bg-white text-black rounded-full shadow-md">
-                    <button onclick="updateCart('${item.id}', -1, ${item.price}, ${item.ticketCount})" class="w-8 h-8 flex items-center justify-center font-bold text-xl active:bg-gray-200 rounded-l-full">−</button>
-                    <span id="qty-${item.id}" class="w-6 text-center font-semibold text-sm">0</span>
-                    <button onclick="updateCart('${item.id}', 1, ${item.price}, ${item.ticketCount})" class="w-8 h-8 flex items-center justify-center font-bold text-xl active:bg-gray-200 rounded-r-full">+</button>
+                <div class="h-[140px] w-full bg-black/80 flex items-center justify-center overflow-hidden">
+                    <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onerror="this.style.display='none'">
+                </div>
+
+                <div class="p-4 flex-1 flex flex-col justify-between">
+                    <div class="mb-10">
+                        <h3 class="font-bold text-sm leading-tight mb-2 text-white/90">${item.name}</h3>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-2xl font-black text-red-400">$${item.price}</span>
+                            ${item.original ? `<span class="text-sm text-white/40 line-through">$${item.original}</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="absolute bottom-4 right-4 flex items-center bg-white/10 backdrop-blur-md text-white rounded-full border border-white/20">
+                        <button onclick="updateCart('${item.id}', -1, ${item.price}, ${item.ticketCount})" class="w-9 h-9 flex items-center justify-center active:bg-white/20 rounded-l-full transition-colors">
+                            <img src="./icon/minus.svg" class="w-4 h-4 invert" alt="-">
+                        </button>
+                        <span id="qty-${item.id}" class="w-6 text-center font-bold text-sm">0</span>
+                        <button onclick="updateCart('${item.id}', 1, ${item.price}, ${item.ticketCount})" class="w-9 h-9 flex items-center justify-center active:bg-white/20 rounded-r-full transition-colors">
+                            <img src="./icon/plus.svg" class="w-4 h-4 invert" alt="+">
+                        </button>
+                    </div>
                 </div>
             </div>`;
         });
@@ -223,7 +229,6 @@ function updateCart(id, delta, price, tCount) {
     let next = current + delta;
     if (next < 0) next = 0;
     
-    // 計算差異
     let diff = next - current;
     cart[id] = next;
     
@@ -248,7 +253,6 @@ function updateBottomButton() {
     }
 }
 
-// 預載座位
 window.onload = function() {
     renderProducts();
     fetch(`${GAS_URL}?action=seatStatus`)
@@ -267,11 +271,10 @@ async function goToSeats() {
     const className = document.getElementById("userClass").value.trim();
     
     if (!name || !phone || !className) {
-        Swal.fire({ icon: 'warning', title: '資料未填', text: '姓名、電話、班級皆為必填！' });
+        Swal.fire({ icon: 'warning', title: '資料未填', text: '姓名、電話、班級皆為必填！', background: '#333', color: '#fff' });
         return;
     }
 
-    // 如果沒有買票，直接送出訂單
     if (totalTickets === 0) {
         submitOrder();
         return;
@@ -290,7 +293,7 @@ async function goToSeats() {
                 isDataPreloaded = true;
             } else throw new Error("Load failed");
         } catch (e) {
-            Swal.fire({ icon: 'error', title: '連線錯誤', text: '請檢查網路' });
+            Swal.fire({ icon: 'error', title: '連線錯誤', text: '請檢查網路', background: '#333', color: '#fff' });
             hideLoading();
             return;
         }
@@ -300,7 +303,7 @@ async function goToSeats() {
     initSeats();
     document.getElementById("step-1").classList.add("hidden");
     document.getElementById("step-2").classList.remove("hidden");
-    document.getElementById("bottom-bar").classList.add("translate-y-full"); // 隱藏底部按鈕
+    document.getElementById("bottom-bar").classList.add("translate-y-full");
     window.scrollTo(0, 0);
 }
 
@@ -333,7 +336,7 @@ function initSeats() {
             let staticType = 'white'; 
             if (r === 1 || r === 2) { if (['A','B','C','D'].includes(c)) staticType = 'red'; }
             if (r >= 1 && r <= 5) { if (['E','F','G'].includes(c)) staticType = 'red'; }
-            if (r === 5 && ['A','B','C','D'].includes(c)) staticType = 'gold'; // 修正: 避開橘色
+            if (r === 5 && ['A','B','C','D'].includes(c)) staticType = 'gold'; 
             if ((r === 14 || r === 15) && ['F','G'].includes(c)) staticType = 'red';
             if (r === 15 && c === 'E') staticType = 'grey'; 
             if (r >= 1 && r <= 5 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue';
@@ -365,7 +368,7 @@ function toggleSeat(id, el) {
         el.classList.remove("selected");
     } else {
         if (selectedSeats.length >= totalTickets) {
-            Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: `只能選 ${totalTickets} 個位子`, showConfirmButton: false, timer: 1500 });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: `只能選 ${totalTickets} 個位子`, showConfirmButton: false, timer: 1500, background: '#333', color: '#fff' });
             return;
         }
         selectedSeats.push(id);
@@ -375,11 +378,10 @@ function toggleSeat(id, el) {
 
 async function submitOrder() {
     if (totalTickets > 0 && selectedSeats.length !== totalTickets) {
-        Swal.fire({ icon: 'warning', title: '座位未選滿', text: `需選 ${totalTickets} 個，目前已選 ${selectedSeats.length} 個。` });
+        Swal.fire({ icon: 'warning', title: '座位未選滿', text: `需選 ${totalTickets} 個，目前已選 ${selectedSeats.length} 個。`, background: '#333', color: '#fff' });
         return;
     }
 
-    // 整理購買清單
     const itemsList = [];
     let itemsText = "";
     productCategories.forEach(cat => {
@@ -409,28 +411,28 @@ async function submitOrder() {
 
         if (resData.result === "success") {
             const receiptHtml = `
-                <div style="text-align: left; font-size: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                <div style="text-align: left; font-size: 15px; background: #1a0b0d; color: #fff; padding: 15px; border-radius: 8px; border: 1px solid #a05c63;">
                     <p><strong>姓名：</strong>${payload.name}</p>
                     <p><strong>電話：</strong>${payload.phone}</p>
                     <p><strong>班級：</strong>${payload.className}</p>
-                    ${totalTickets > 0 ? `<p><strong>座位：</strong><span style="color:#a05c63; font-weight:bold;">${selectedSeats.join(", ")}</span></p>` : ''}
-                    <hr style="margin: 10px 0;">
+                    ${totalTickets > 0 ? `<p><strong>座位：</strong><span style="color:#ffb3b3; font-weight:bold;">${selectedSeats.join(", ")}</span></p>` : ''}
+                    <hr style="margin: 10px 0; border-color: rgba(255,255,255,0.2);">
                     <ul style="margin-top:0; padding-left: 20px;">${itemsText}</ul>
-                    <p style="margin-top: 10px;"><strong>總金額：</strong><span style="color: red; font-size: 1.2em; font-weight: bold;">$${totalPrice}</span></p>
-                    <hr style="border: 0.5px solid #ccc; margin: 15px 0;">
-                    <p style="color: #d32f2f; font-weight: bold; font-size: 14px;">⚠️ 提醒：請於一週內將款項交給 206班 林佑家，否則預訂將自動失效！</p>
+                    <p style="margin-top: 10px;"><strong>總金額：</strong><span style="color: #ff6b6b; font-size: 1.2em; font-weight: bold;">$${totalPrice}</span></p>
+                    <hr style="border: 0.5px solid rgba(255,255,255,0.2); margin: 15px 0;">
+                    <p style="color: #ff6b6b; font-weight: bold; font-size: 14px;">⚠️ 提醒：請於一週內將款項交給 206班 林佑家，否則預訂將自動失效！</p>
                 </div>
             `;
 
-            await Swal.fire({ icon: 'success', title: '🎉 訂購成功！', html: receiptHtml, confirmButtonText: '確定', allowOutsideClick: false });
+            await Swal.fire({ icon: 'success', title: '🎉 訂購成功！', html: receiptHtml, confirmButtonText: '確定', allowOutsideClick: false, background: '#333', color: '#fff' });
             location.reload(); 
         } else {
-            Swal.fire({ icon: 'error', title: '劃位失敗', text: resData.message || '座位可能剛被搶走，請重新選擇！' });
+            Swal.fire({ icon: 'error', title: '劃位失敗', text: resData.message || '座位可能剛被搶走，請重新選擇！', background: '#333', color: '#fff' });
             isDataPreloaded = false; 
         }
     } catch (err) {
         hideLoading();
-        Swal.fire({ icon: 'error', title: '連線錯誤', text: '傳送失敗，請檢查網路連線後再試一次！' });
+        Swal.fire({ icon: 'error', title: '連線錯誤', text: '傳送失敗，請檢查網路連線後再試一次！', background: '#333', color: '#fff' });
     }
 }
 
