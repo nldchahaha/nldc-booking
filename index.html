@@ -7,29 +7,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --available: #ffffff; --occupied: #bdbdbd; --selected: #FFEB3B; }
+        :root { 
+            --available: #ffffff; 
+            --occupied: #bdbdbd; 
+            --selected: #FFEB3B; 
+        }
         
         body { 
-            background: url('./images/bg.png') center top / cover fixed;
-            background-color: #3b1115; /* 深色備用底色 */
+            /* 使用 Figma 設定的漸層背景 */
+            background: linear-gradient(180deg, rgba(175,106,113,1) 0%, rgba(70,6,12,1) 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding-bottom: 90px;
+            padding-bottom: 100px;
         }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 輸入框與卡片統一樣式 */
-        .input-dark {
-            background-color: #1a1a1a;
-            border: 1px solid #404040;
+        /* 輸入框 Figma 樣式 */
+        .input-figma {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             color: white;
         }
-        .input-dark::placeholder { color: #888; }
-        .input-dark:focus { border-color: #fff; background-color: #2a2a2a; }
+        .input-figma::placeholder { color: white; opacity: 0.8; }
+        .input-figma:focus { border-color: #fff; background-color: rgba(255, 255, 255, 0.2); }
 
         .seat-map { 
             display: grid; 
@@ -38,7 +43,7 @@
             margin-top: 20px; 
             overflow-x: auto; 
             padding: 15px;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             backdrop-filter: blur(4px);
         }
@@ -56,7 +61,7 @@
         .occupied { background: var(--occupied); color: #fff; cursor: not-allowed; opacity: 0.5; }
         .selected { background: var(--selected); color: black; font-weight: bold; }
         
-        /* 嚴格把關：不使用橘色，並將藍色指定為正確的老人區 */
+        /* 嚴格把關：不使用橘色，維持原設定 */
         .seat.static-red { background: #b71c1c; color: transparent; cursor: not-allowed; }
         .seat.static-yellow { background: #fbc02d; color: transparent; cursor: not-allowed; }
         .seat.static-blue { background: #1976d2; color: transparent; cursor: not-allowed; }
@@ -80,7 +85,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* SweetAlert 客製化黑暗風格 */
-        .swal-dark-popup { background: #000 !important; color: #fff !important; border: 1px solid #333 !important; }
+        .swal-dark-popup { background: #1a0b0d !important; color: #fff !important; border: 1px solid #a05c63 !important; }
         .swal-dark-title { color: #fff !important; text-align: left !important; font-weight: bold !important; font-size: 22px !important; margin-bottom: 10px !important;}
         .swal-dark-html { text-align: left !important; color: #ddd !important; }
         .swal-dark-confirm { background: #fff !important; color: #000 !important; font-weight: bold !important; border-radius: 8px !important; width: 100% !important; padding: 12px !important;}
@@ -93,21 +98,24 @@
     <div id="loading-text" class="text-white tracking-widest text-sm">資料讀取中...</div>
 </div>
 
-<div class="sticky top-0 z-50 w-full h-[70px] flex justify-center items-center shadow-lg bg-[#a05c63] border-b border-white/10">
-    <img src="./images/header.png" alt="NLDC M3" class="h-12 object-contain">
+<div class="sticky top-0 z-50 w-full h-[116px] flex flex-col justify-center items-center shadow-lg bg-[#a05c63] border-b border-white/10">
+    <img src="./images/m3-LOGO.png" alt="NLDC M3" class="h-14 object-contain mt-2" onerror="this.style.display='none'">
+    <div class="mt-2 font-semibold text-[#3f0000] text-xs text-center tracking-[0.25px]">
+        NLDC《M3》周邊預購＆訂票系統
+    </div>
 </div>
 
-<div class="max-w-md mx-auto p-5">
+<div class="max-w-md mx-auto p-5 mt-4">
     
-    <div id="step-1" class="space-y-8">
+    <div id="step-1" class="space-y-10">
         
-        <div class="space-y-4">
-            <h2 class="text-lg font-bold tracking-wide">訂購資料（必填）</h2>
+        <div class="space-y-3">
+            <h2 class="text-xl font-semibold tracking-[0.25px] mb-4">訂購資料（必填）</h2>
             <div class="space-y-3">
-                <input type="text" id="userName" placeholder="姓名" class="w-full h-12 px-4 input-dark rounded-xl transition-all outline-none">
-                <input type="tel" id="userPhone" placeholder="聯絡電話" class="w-full h-12 px-4 input-dark rounded-xl transition-all outline-none">
-                <input type="text" id="userClass" placeholder="班級／付款代理人" class="w-full h-12 px-4 input-dark rounded-xl transition-all outline-none">
-                <p class="text-[11px] text-white/50 pl-1">（非本校觀眾請將款項交由本校學生付款）</p>
+                <input type="text" id="userName" placeholder="姓名" class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
+                <input type="tel" id="userPhone" placeholder="聯絡電話" class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
+                <input type="text" id="userClass" placeholder="班級／付款代理人" class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
+                <p class="text-[11px] font-medium text-white tracking-[0.25px] pl-1">（非本校觀眾請將款項交由本校學生付款）</p>
             </div>
         </div>
 
@@ -120,7 +128,7 @@
             <h2 class="text-2xl font-bold tracking-wide mb-1">您有 <span id="max-seats" class="text-white">0</span> 個座位待劃位</h2>
         </div>
         
-        <div class="flex flex-wrap gap-3 text-xs justify-center bg-black/50 p-3 rounded-lg border border-white/10">
+        <div class="flex flex-wrap gap-3 text-xs justify-center bg-black/30 p-3 rounded-lg border border-white/10">
             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-white rounded-sm"></div>可劃位</div>
             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-[#FFEB3B] rounded-sm"></div>已選擇</div>
             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-[#bdbdbd] rounded-sm opacity-50"></div>已售出</div>
@@ -132,14 +140,14 @@
         <div class="seat-map" id="seatContainer"></div>
         
         <div class="flex gap-4 mt-8">
-            <button onclick="goBack()" class="flex-1 bg-[#4a4a4a] text-white py-4 rounded-xl font-bold active:bg-gray-600 transition-colors shadow-lg">上一步</button>
+            <button onclick="goBack()" class="flex-1 bg-transparent border border-white text-white py-4 rounded-xl font-bold active:bg-white/10 transition-colors shadow-lg">上一步</button>
             <button onclick="submitOrder()" class="flex-[2] bg-white text-black py-4 rounded-xl font-bold active:bg-gray-200 transition-colors shadow-lg text-lg">確認劃位</button>
         </div>
     </div>
 </div>
 
-<div id="bottom-bar" class="fixed bottom-0 left-0 w-full bg-transparent p-4 pb-6 z-40 transition-transform">
-    <button onclick="goToSeats()" id="next-btn" class="w-full max-w-md mx-auto block bg-white text-black font-bold text-lg py-4 rounded-xl disabled:bg-[#333] disabled:text-gray-500 disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(0,0,0,0.8)] transition-all">
+<div id="bottom-bar" class="fixed bottom-0 left-0 w-full bg-white z-40 transition-transform shadow-[0_-4px_25px_rgba(0,0,0,0.15)]">
+    <button onclick="goToSeats()" id="next-btn" class="w-full h-[72px] flex items-center justify-center text-black font-semibold text-xl tracking-[0.25px] disabled:bg-[#ddd] disabled:text-gray-500 disabled:cursor-not-allowed transition-all">
         請選擇商品
     </button>
 </div>
@@ -148,35 +156,40 @@
 // ⚠️ 替換成你的 GAS 網址
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwUC8v6u6jwj5VTOesdqZ4bHbApZ6QuaQnx27-KP20OnpeXsth7O6CDzvXRjDnhpMiJ/exec"; 
 
-// 完全對齊設計圖的商品資料與價格
+// 配合 Figma 結構的商品資料
 const productCategories = [
     {
         title: "早鳥周邊套票",
         id: "early-bird",
         items: [
-            { id: "eb1", name: "入門組：門票+吊飾+杯套", price: 180, original: 240, ticketCount: 1, image: "./images/item-eb1.png" },
-            { id: "eb2", name: "應援組：門票+短袖B", price: 380, original: 460, ticketCount: 1, image: "./images/item-eb2.png" }
+            { id: "eb1", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 1, hasBg: true, image: "./images/frame-5.png" },
+            { id: "eb2", name: "應援組：門票＋毛巾", price: 380, original: 460, ticketCount: 1, hasBg: false, image: "./images/plus.png" },
+            { id: "eb3", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 1, hasBg: false, image: "./images/image.png" }
         ]
     },
     {
         title: "周邊優惠組合",
         id: "combo",
         items: [
-            { id: "cb4", name: "戰袍全集：外套+兩款短袖", price: 1240, original: 1680, ticketCount: 0, image: "./images/item-cb4.png" }
+            { id: "cb1", name: "戰袍全集：外套 + 兩款短袖", price: 1240, original: 1680, ticketCount: 0, hasBg: true, image: "./images/frame-5-2.png" },
+            { id: "cb2", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 0, hasBg: false, image: "./images/plus-2.png" }
         ]
     },
     {
         title: "周邊單品",
         id: "single",
         items: [
-            { id: "sg1", name: "短袖：嘻哈刺客", price: 420, ticketCount: 0, image: "./images/item-sg1.png" }
+            { id: "sg1", name: "短袖：嘻哈刺客", price: 420, ticketCount: 0, hasBg: false, usePlusComponent: true },
+            { id: "sg2", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 0, hasBg: false, image: "./images/plus-3.png" },
+            { id: "sg3", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 0, hasBg: false, image: "./images/plus-4.png" }
         ]
     },
     {
-        title: "門票",
+        title: "門票（早鳥票剩餘 8 張）",
         id: "ticket",
         items: [
-            { id: "tk1", name: "NLDC《M3》早鳥票", price: 80, original: 150, ticketCount: 1, image: "./images/item-tk1.png" }
+            { id: "tk1", name: "NLDC《M3》早鳥票", price: 50, original: 85, ticketCount: 1, hasBg: true, image: "./images/frame-5-3.png" },
+            { id: "tk2", name: "NLDC《M3》一般票", price: 85, ticketCount: 1, hasBg: false, image: "./images/plus-5.png" }
         ]
     }
 ];
@@ -193,37 +206,50 @@ function renderProducts() {
     let html = '';
 
     productCategories.forEach(category => {
-        html += `<div class="space-y-4">
-            <h2 class="text-lg font-bold tracking-wide">${category.title}</h2>
-            <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">`;
+        html += `<div class="space-y-3">
+            <h2 class="text-xl font-semibold text-white tracking-[0.25px] leading-5">${category.title}</h2>
+            <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">`;
         
         category.items.forEach(item => {
             cart[item.id] = 0; 
-            html += `
-            <div class="flex-none w-[260px] bg-[#0a0a0a] rounded-xl overflow-hidden shadow-lg relative flex flex-col border border-[#222]">
+            
+            // 決定圖片與加減按鈕的渲染邏輯 (對齊 Figma 視覺)
+            let topVisualHtml = '';
+            if (item.hasBg) {
+                topVisualHtml = `
+                <div class="absolute top-0 left-0 w-[273px] h-[182px] flex rounded-[10px_10px_0px_0px] bg-cover bg-center" style="background-image: url('${item.image}'); background-color: #333;">
+                    <div class="mt-[126px] w-32 h-12 ml-[137px] flex gap-1.5 bg-white rounded-[50px] shadow-lg">
+                        <button onclick="updateCart('${item.id}', -1, ${item.price}, ${item.ticketCount})" class="w-1/3 h-full flex items-center justify-center text-3xl text-black pb-1 active:bg-gray-200 rounded-l-[50px] transition-colors">-</button>
+                        <div id="qty-${item.id}" class="w-1/3 flex items-center justify-center font-semibold text-black text-2xl tracking-[0.25px]">0</div>
+                        <button onclick="updateCart('${item.id}', 1, ${item.price}, ${item.ticketCount})" class="w-1/3 h-full flex items-center justify-center text-2xl text-black active:bg-gray-200 rounded-r-[50px] transition-colors">+</button>
+                    </div>
+                </div>`;
+            } else {
+                let imgContent = item.usePlusComponent 
+                    ? `<span class="text-3xl font-light text-black pb-1">+</span>`
+                    : `<img src="${item.image}" class="w-7 h-7" alt="+" onerror="this.style.display='none'">`;
                 
-                <div class="h-[160px] w-full bg-[#111] flex items-center justify-center overflow-hidden">
-                    <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src=''; this.style.backgroundColor='#2a2a2a';">
-                </div>
-
-                <div class="p-4 flex-1 flex flex-col justify-between pt-3 pb-5">
-                    <div>
-                        <h3 class="font-bold text-[13px] text-white/90 mb-1">${item.name}</h3>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-xl font-bold text-white">$${item.price}</span>
-                            ${item.original ? `<span class="text-xs text-white/40 line-through">$${item.original}</span>` : ''}
+                topVisualHtml = `
+                <div class="flex w-[273px] h-[182px] items-end justify-end p-2 absolute top-0 left-0 rounded-[10px_10px_0px_0px]">
+                    <div class="flex flex-col items-center justify-center gap-2">
+                        <button onclick="updateCart('${item.id}', 1, ${item.price}, ${item.ticketCount})" class="relative w-12 h-12 bg-white rounded-3xl flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+                            ${imgContent}
+                        </button>
+                        <div id="qty-container-${item.id}" class="hidden bg-white text-black px-3 py-1 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">
+                            <span onclick="updateCart('${item.id}', -1, ${item.price}, ${item.ticketCount})" class="cursor-pointer px-1">-</span>
+                            <span id="qty-${item.id}">0</span>
                         </div>
                     </div>
-                    
-                    <div class="absolute bottom-4 right-4 flex items-center bg-white text-black rounded-full shadow-lg border border-gray-200 h-10 w-28 px-1">
-                        <button onclick="updateCart('${item.id}', -1, ${item.price}, ${item.ticketCount})" class="flex-1 h-full flex items-center justify-center rounded-l-full active:bg-gray-200 transition-colors">
-                            <img src="./icon/minus.svg" class="w-4 h-4" alt="-">
-                        </button>
-                        <span id="qty-${item.id}" class="w-8 text-center font-bold text-base">0</span>
-                        <button onclick="updateCart('${item.id}', 1, ${item.price}, ${item.ticketCount})" class="flex-1 h-full flex items-center justify-center rounded-r-full active:bg-gray-200 transition-colors">
-                            <img src="./icon/plus.svg" class="w-4 h-4" alt="+">
-                        </button>
-                    </div>
+                </div>`;
+            }
+
+            html += `
+            <div class="relative w-[273px] h-[257px] bg-[#ffffff1a] rounded-[10px] shadow-[0px_4px_25px_#00000059] flex-shrink-0">
+                ${topVisualHtml}
+                <div class="flex flex-wrap w-[94%] items-end gap-[0px_4px] absolute top-[calc(50%+62px)] left-[3%]">
+                    <div class="w-[257px] font-semibold text-sm leading-[25px] text-white tracking-[0.25px]">${item.name}</div>
+                    <div class="font-semibold text-white text-2xl tracking-[0.25px] leading-[34px]">$${item.price}</div>
+                    ${item.original ? `<div class="font-medium text-[#ffffffcc] text-base leading-8 line-through tracking-[0.25px]">$${item.original}</div>` : ''}
                 </div>
             </div>`;
         });
@@ -244,7 +270,17 @@ function updateCart(id, delta, price, tCount) {
     totalTickets += (diff * tCount);
     totalPrice += (diff * price);
     
-    document.getElementById(`qty-${id}`).innerText = next;
+    const qtyElement = document.getElementById(`qty-${id}`);
+    if(qtyElement) {
+        qtyElement.innerText = next;
+        // 處理沒有背景圖時的數量顯示 UI 邏輯
+        const qtyContainer = document.getElementById(`qty-container-${id}`);
+        if(qtyContainer) {
+            if(next > 0) qtyContainer.classList.remove('hidden');
+            else qtyContainer.classList.add('hidden');
+        }
+    }
+    
     updateBottomButton();
 }
 
@@ -257,7 +293,7 @@ function updateBottomButton() {
         btn.innerText = `確認總額 $${totalPrice.toLocaleString()} (無劃位)`;
         btn.disabled = false;
     } else {
-        btn.innerText = `確認並開始劃位 (${totalTickets} 個座位)`;
+        btn.innerText = `確認並開始劃位（${totalTickets}）`;
         btn.disabled = false;
     }
 }
@@ -349,8 +385,8 @@ function initSeats() {
 
             let staticType = 'white'; 
             
-            // 修正：徹底移除橘色，並將藍色(老人區)精準設定在 U~# 的 1~5 排
-            if (r >= 1 && r <= 5 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue'; // 老人區
+            // 嚴格把關：無橘色，藍色為 U~# 區的老人區
+            if (r >= 1 && r <= 5 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue'; 
             if (r === 1 || r === 2) { if (['A','B','C','D'].includes(c)) staticType = 'red'; }
             if (r >= 1 && r <= 5) { if (['E','F','G'].includes(c)) staticType = 'red'; }
             if ((r === 14 || r === 15) && ['F','G'].includes(c)) staticType = 'red';
@@ -403,16 +439,15 @@ async function submitOrder() {
         cat.items.forEach(item => {
             if(cart[item.id] > 0) {
                 itemsList.push({ name: item.name, qty: cart[item.id], price: item.price });
-                // 照著設計圖產生清單格式
                 itemsTextHtml += `
                     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
                         <div>
-                            <div style="color: #888; font-size: 12px;">${cat.title.replace('周邊','')}：</div>
+                            <div style="color: #aaa; font-size: 12px;">${cat.title.replace('（早鳥票剩餘 8 張）','').replace('周邊','')}：</div>
                             <div style="font-size: 14px; font-weight: 500;">${item.name} <span style="font-size: 12px; margin-left: 5px;">x${cart[item.id]}</span></div>
                         </div>
                         <div style="font-size: 18px; font-weight: bold;">$${(item.price * cart[item.id]).toLocaleString()}</div>
                     </div>
-                    <hr style="border: 0.5px solid #333; margin: 10px 0;">
+                    <hr style="border: 0.5px solid rgba(255,255,255,0.2); margin: 10px 0;">
                 `;
             }
         });
@@ -435,7 +470,6 @@ async function submitOrder() {
         hideLoading();
 
         if (resData.result === "success") {
-            // 完全依照設計圖客製化結帳明細畫面
             const receiptHtml = `
                 <div style="text-align: left; font-size: 14px; line-height: 1.6; margin-top: 10px;">
                     <ul style="padding-left: 18px; margin-bottom: 20px; color: #ddd; font-size: 13px;">
@@ -446,21 +480,21 @@ async function submitOrder() {
                     
                     <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #fff;">訂單資料</h3>
                     <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
-                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid #444; padding-bottom: 5px;">
-                            <div style="color: #888; font-size: 12px;">姓名</div>
+                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">
+                            <div style="color: #aaa; font-size: 12px;">姓名</div>
                             <div style="font-weight: bold;">${payload.name}</div>
                         </div>
-                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid #444; padding-bottom: 5px;">
-                            <div style="color: #888; font-size: 12px;">聯絡電話</div>
+                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">
+                            <div style="color: #aaa; font-size: 12px;">聯絡電話</div>
                             <div style="font-weight: bold;">${payload.phone}</div>
                         </div>
                         ${totalTickets > 0 ? `
-                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid #444; padding-bottom: 5px;">
-                            <div style="color: #888; font-size: 12px;">劃位代號</div>
-                            <div style="font-weight: bold;">${selectedSeats.join(", ")}</div>
+                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">
+                            <div style="color: #aaa; font-size: 12px;">劃位代號</div>
+                            <div style="font-weight: bold; color: #FFEB3B;">${selectedSeats.join(", ")}</div>
                         </div>` : ''}
-                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid #444; padding-bottom: 5px;">
-                            <div style="color: #888; font-size: 12px;">校內代理人</div>
+                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">
+                            <div style="color: #aaa; font-size: 12px;">校內代理人</div>
                             <div style="font-weight: bold;">${payload.className}</div>
                         </div>
                     </div>
@@ -469,7 +503,7 @@ async function submitOrder() {
                     ${itemsTextHtml}
                     
                     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 20px;">
-                        <div style="color: #888; font-size: 14px;">金額總計</div>
+                        <div style="color: #aaa; font-size: 14px;">金額總計</div>
                         <div style="font-size: 26px; font-weight: bold; color: #fff;">$${totalPrice.toLocaleString()}</div>
                     </div>
                 </div>
