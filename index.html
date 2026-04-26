@@ -14,7 +14,6 @@
         }
         
         body { 
-            /* 使用 Figma 設定的漸層背景 */
             background: linear-gradient(180deg, rgba(175,106,113,1) 0%, rgba(70,6,12,1) 100%);
             background-attachment: fixed;
             min-height: 100vh;
@@ -27,7 +26,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 輸入框 Figma 樣式 */
         .input-figma {
             background-color: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.5);
@@ -61,13 +59,12 @@
         .occupied { background: var(--occupied); color: #fff; cursor: not-allowed; opacity: 0.5; }
         .selected { background: var(--selected); color: black; font-weight: bold; }
         
-        /* 嚴格把關：不使用橘色，維持原設定 */
-        .seat.static-red { background: #b71c1c; color: transparent; cursor: not-allowed; }
+        .seat.static-red    { background: #b71c1c; color: transparent; cursor: not-allowed; }
         .seat.static-yellow { background: #fbc02d; color: transparent; cursor: not-allowed; }
-        .seat.static-blue { background: #1976d2; color: transparent; cursor: not-allowed; }
-        .seat.static-green { background: #388e3c; color: transparent; cursor: not-allowed; }
-        .seat.static-grey { background: #757575; color: transparent; cursor: not-allowed; }
-        .seat.aisle { background: transparent; pointer-events: none; }
+        .seat.static-blue   { background: #1976d2; color: transparent; cursor: not-allowed; }
+        .seat.static-green  { background: #388e3c; color: transparent; cursor: not-allowed; }
+        .seat.static-grey   { background: #757575; color: transparent; cursor: not-allowed; }
+        .seat.aisle         { background: transparent; pointer-events: none; }
 
         .hidden { display: none !important; }
         
@@ -84,20 +81,102 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* SweetAlert 客製化黑暗風格 */
-        .swal-dark-popup { background: #1a0b0d !important; color: #fff !important; border: 1px solid #a05c63 !important; }
-        .swal-dark-title { color: #fff !important; text-align: left !important; font-weight: bold !important; font-size: 22px !important; margin-bottom: 10px !important;}
-        .swal-dark-html { text-align: left !important; color: #ddd !important; }
-        .swal-dark-confirm { background: #fff !important; color: #000 !important; font-weight: bold !important; border-radius: 8px !important; width: 100% !important; padding: 12px !important;}
+        .swal-dark-popup    { background: #1a0b0d !important; color: #fff !important; border: 1px solid #a05c63 !important; }
+        .swal-dark-title    { color: #fff !important; text-align: left !important; font-weight: bold !important; font-size: 22px !important; margin-bottom: 10px !important; }
+        .swal-dark-html     { text-align: left !important; color: #ddd !important; }
+        .swal-dark-confirm  { background: #fff !important; color: #000 !important; font-weight: bold !important; border-radius: 8px !important; width: 100% !important; padding: 12px !important; }
+
+        /* 商品卡片 */
+        .product-card {
+            width: 190px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.12);
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card-top {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, rgba(160,92,99,0.5), rgba(70,6,12,0.7));
+        }
+        .size-badge {
+            position: absolute;
+            top: 8px; right: 8px;
+            background: #FFEB3B;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 99px;
+            text-decoration: none;
+        }
+        .product-card-body {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+        .qty-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-radius: 99px;
+            padding: 2px 4px;
+        }
+        .qty-btn {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            color: black;
+            font-size: 22px;
+            font-weight: 300;
+            border-radius: 99px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: background 0.1s;
+        }
+        .qty-btn:active { background: rgba(0,0,0,0.1); }
+        .tbd-badge {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255,255,255,0.45);
+            padding: 8px 0 4px;
+        }
+
+        /* 網站關閉頁面 */
+        #site-closed {
+            position: fixed; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: linear-gradient(180deg, rgba(175,106,113,1) 0%, rgba(70,6,12,1) 100%);
+            z-index: 99999; text-align: center; padding: 30px;
+        }
     </style>
 </head>
 <body>
+
+<!-- 網站關閉提示 (由 JS 控制顯示) -->
+<div id="site-closed" class="hidden">
+    <div class="text-6xl mb-6">🎭</div>
+    <h1 class="text-2xl font-bold mb-3">NLDC《M3》預購系統</h1>
+    <p class="text-white/70 text-base">預購系統已於 2026/7/11 23:00 關閉</p>
+    <p class="text-white/50 text-sm mt-2">感謝您的支持，歡迎蒞臨 NLDC 成果發表！</p>
+</div>
 
 <div id="loading-overlay" class="hidden">
     <div class="spinner"></div>
     <div id="loading-text" class="text-white tracking-widest text-sm">資料讀取中...</div>
 </div>
 
+<!-- Header -->
 <div class="sticky top-0 z-50 w-full h-[116px] flex flex-col justify-center items-center shadow-lg bg-[#a05c63] border-b border-white/10">
     <img src="./images/m3-LOGO.png" alt="NLDC M3" class="h-14 object-contain mt-2" onerror="this.style.display='none'">
     <div class="mt-2 font-semibold text-[#3f0000] text-xs text-center tracking-[0.25px]">
@@ -107,25 +186,31 @@
 
 <div class="max-w-md mx-auto p-5 mt-4">
     
+    <!-- Step 1: 填資料 + 選商品 -->
     <div id="step-1" class="space-y-10">
         
+        <!-- 訂購資料 -->
         <div class="space-y-3">
             <h2 class="text-xl font-semibold tracking-[0.25px] mb-4">訂購資料（必填）</h2>
             <div class="space-y-3">
-                <input type="text" id="userName" placeholder="姓名" class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
-                <input type="tel" id="userPhone" placeholder="聯絡電話" class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
-                <input type="text" id="userClass" placeholder="班級／付款代理人" class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
+                <input type="text"  id="userName"  placeholder="姓名"        class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
+                <input type="tel"   id="userPhone" placeholder="聯絡電話"    class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
+                <input type="text"  id="userClass" placeholder="班級／付款代理人" class="w-full h-10 px-5 input-figma rounded-[10px] transition-all outline-none text-base font-medium">
                 <p class="text-[11px] font-medium text-white tracking-[0.25px] pl-1">（非本校觀眾請將款項交由本校學生付款）</p>
             </div>
         </div>
 
+        <!-- 商品列表 (由 JS 渲染) -->
         <div id="product-container" class="space-y-10"></div>
         
     </div>
 
+    <!-- Step 2: 劃位 -->
     <div id="step-2" class="hidden space-y-6">
         <div>
-            <h2 class="text-2xl font-bold tracking-wide mb-1">您有 <span id="max-seats" class="text-white">0</span> 個座位待劃位</h2>
+            <h2 class="text-2xl font-bold tracking-wide mb-1">
+                您有 <span id="max-seats" class="text-white">0</span> 個座位待劃位
+            </h2>
         </div>
         
         <div class="flex flex-wrap gap-3 text-xs justify-center bg-black/30 p-3 rounded-lg border border-white/10">
@@ -146,6 +231,7 @@
     </div>
 </div>
 
+<!-- Bottom bar -->
 <div id="bottom-bar" class="fixed bottom-0 left-0 w-full bg-white z-40 transition-transform shadow-[0_-4px_25px_rgba(0,0,0,0.15)]">
     <button onclick="goToSeats()" id="next-btn" class="w-full h-[72px] flex items-center justify-center text-black font-semibold text-xl tracking-[0.25px] disabled:bg-[#ddd] disabled:text-gray-500 disabled:cursor-not-allowed transition-all">
         請選擇商品
@@ -153,134 +239,253 @@
 </div>
 
 <script>
-// ⚠️ 替換成你的 GAS 網址
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwUC8v6u6jwj5VTOesdqZ4bHbApZ6QuaQnx27-KP20OnpeXsth7O6CDzvXRjDnhpMiJ/exec"; 
+// ==========================================
+// 設定
+// ==========================================
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwUC8v6u6jwj5VTOesdqZ4bHbApZ6QuaQnx27-KP20OnpeXsth7O6CDzvXRjDnhpMiJ/exec";
 
-// 配合 Figma 結構的商品資料
+// 網站關閉時間
+const SITE_CLOSE_DATE = new Date('2026-07-11T23:00:00+08:00');
+
+// 尺寸說明連結（請填入實際網址）
+const SIZE_INFO_URL = "https://www.instagram.com/nldc_25th";
+
+// 早鳥票總限量
+const EARLY_BIRD_LIMIT = 80;
+
+// ==========================================
+// 商品資料
+// ==========================================
+// removeAfter: 超過此日期後自動隱藏該品項 / 分類
+// price: null → 待公布（禁止加入購物車）
+// ticketCount: 此商品含幾張門票（用於劃位計算）
+// hasSize: 是否有尺寸選擇（顯示尺寸說明連結）
+// isEarlyBird: 是否屬於早鳥票（用於後台統計剩餘數量）
+
 const productCategories = [
     {
         title: "早鳥周邊套票",
         id: "early-bird",
+        removeAfter: new Date('2026-07-01T00:00:00+08:00'),
+        note: "2026/7/1 後移除本欄所有選項",
         items: [
-            { id: "eb1", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 1, hasBg: true, image: "./images/frame-5.png" },
-            { id: "eb2", name: "應援組：門票＋毛巾", price: 380, original: 460, ticketCount: 1, hasBg: false, image: "./images/plus.png" },
-            { id: "eb3", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 1, hasBg: false, image: "./images/image.png" }
+            {
+                id: "eb1", emoji: "🎫",
+                name: "入門組：票＋吊飾＋杯套",
+                price: null, ticketCount: 1, isEarlyBird: true
+            },
+            {
+                id: "eb2", emoji: "💃",
+                name: "應援組：票＋短袖B",
+                price: null, ticketCount: 1, hasSize: true, isEarlyBird: true
+            },
+            {
+                id: "eb3", emoji: "⭐",
+                name: "收藏組：票＋短袖A＋吊飾",
+                price: null, ticketCount: 1, hasSize: true, isEarlyBird: true
+            }
         ]
     },
     {
-        title: "周邊優惠組合",
+        title: "優惠周邊組合",
         id: "combo",
         items: [
-            { id: "cb1", name: "戰袍全集：外套 + 兩款短袖", price: 1240, original: 1680, ticketCount: 0, hasBg: true, image: "./images/frame-5-2.png" },
-            { id: "cb2", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 0, hasBg: false, image: "./images/plus-2.png" }
+            {
+                id: "cb1", emoji: "✨",
+                name: "小物雙享：吊飾＋杯套",
+                price: null, ticketCount: 0
+            },
+            {
+                id: "cb2", emoji: "💫",
+                name: "舞者穿搭：短袖B＋吊飾",
+                price: null, ticketCount: 0, hasSize: true
+            },
+            {
+                id: "cb3", emoji: "👕",
+                name: "雙款短袖：短袖A＋短袖B",
+                price: null, ticketCount: 0, hasSize: true
+            },
+            {
+                id: "cb4", emoji: "🥋",
+                name: "戰袍全集：外套＋短袖A＋短袖B",
+                price: null, ticketCount: 0, hasSize: true
+            }
         ]
     },
     {
         title: "周邊單品",
         id: "single",
+        sizeInfoLink: SIZE_INFO_URL, // 分類層級的尺寸連結
         items: [
-            { id: "sg1", name: "短袖：嘻哈刺客", price: 420, ticketCount: 0, hasBg: false, usePlusComponent: true },
-            { id: "sg2", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 0, hasBg: false, image: "./images/plus-3.png" },
-            { id: "sg3", name: "入門組：門票＋吊飾＋杯套", price: 180, original: 240, ticketCount: 0, hasBg: false, image: "./images/plus-4.png" }
+            { id: "sg1", emoji: "👕", name: "短袖A", price: 420, ticketCount: 0, hasSize: true },
+            { id: "sg2", emoji: "👔", name: "短袖B", price: 380, ticketCount: 0, hasSize: true },
+            { id: "sg3", emoji: "🧥", name: "外套",  price: 850, ticketCount: 0, hasSize: true },
+            { id: "sg4", emoji: "🪬", name: "吊飾",  price: 60,  ticketCount: 0 },
+            { id: "sg5", emoji: "🥤", name: "杯套",  price: 85,  ticketCount: 0 }
         ]
     },
     {
-        title: "門票（早鳥票剩餘 8 張）",
+        title: "門票",
         id: "ticket",
+        showEarlyBirdRemaining: true,   // 顯示早鳥票剩餘數量
         items: [
-            { id: "tk1", name: "NLDC《M3》早鳥票", price: 50, original: 85, ticketCount: 1, hasBg: true, image: "./images/frame-5-3.png" },
-            { id: "tk2", name: "NLDC《M3》一般票", price: 85, ticketCount: 1, hasBg: false, image: "./images/plus-5.png" }
+            {
+                id: "tk1", emoji: "🌟",
+                name: "NLDC《M3》早鳥票",
+                price: 50, originalPrice: 85,
+                ticketCount: 1,
+                isEarlyBird: true,
+                removeAfter: new Date('2026-05-31T00:00:00+08:00'),
+                note: "2026/5/31 後移除此選項"
+            },
+            {
+                id: "tk2", emoji: "🎟️",
+                name: "NLDC《M3》一般票",
+                price: 85,
+                ticketCount: 1,
+                removeAfter: new Date('2026-07-01T00:00:00+08:00'),
+                note: "2026/7/1 後移除此選項，改於進場時購買"
+            }
         ]
     }
 ];
 
+// ==========================================
+// 狀態
+// ==========================================
 let cart = {};
 let totalTickets = 0;
 let totalPrice = 0;
 let selectedSeats = [];
-let seatStatusMap = {}; 
-let isDataPreloaded = false; 
+let seatStatusMap = {};
+let isDataPreloaded = false;
+let earlyBirdSoldCount = 0;   // 從後台取得的早鳥票已售數量
 
+// ==========================================
+// 網站關閉檢查
+// ==========================================
+function checkSiteClose() {
+    if (new Date() >= SITE_CLOSE_DATE) {
+        document.getElementById('site-closed').classList.remove('hidden');
+        document.getElementById('bottom-bar').classList.add('hidden');
+    }
+}
+
+// ==========================================
+// 渲染商品列表
+// ==========================================
 function renderProducts() {
     const container = document.getElementById('product-container');
+    const now = new Date();
     let html = '';
 
     productCategories.forEach(category => {
-        html += `<div class="space-y-3">
-            <h2 class="text-xl font-semibold text-white tracking-[0.25px] leading-5">${category.title}</h2>
-            <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">`;
-        
+        // 整個分類是否已過期
+        if (category.removeAfter && now >= category.removeAfter) return;
+
+        // 過濾過期品項
+        const activeItems = category.items.filter(item =>
+            !item.removeAfter || now < item.removeAfter
+        );
+        if (activeItems.length === 0) return;
+
+        // 初始化購物車（包含所有品項，包括已過期的）
         category.items.forEach(item => {
-            cart[item.id] = 0; 
-            
-            // 決定圖片與加減按鈕的渲染邏輯 (對齊 Figma 視覺)
-            let topVisualHtml = '';
-            if (item.hasBg) {
-                topVisualHtml = `
-                <div class="absolute top-0 left-0 w-[273px] h-[182px] flex rounded-[10px_10px_0px_0px] bg-cover bg-center" style="background-image: url('${item.image}'); background-color: #333;">
-                    <div class="mt-[126px] w-32 h-12 ml-[137px] flex gap-1.5 bg-white rounded-[50px] shadow-lg">
-                        <button onclick="updateCart('${item.id}', -1, ${item.price}, ${item.ticketCount})" class="w-1/3 h-full flex items-center justify-center text-3xl text-black pb-1 active:bg-gray-200 rounded-l-[50px] transition-colors">-</button>
-                        <div id="qty-${item.id}" class="w-1/3 flex items-center justify-center font-semibold text-black text-2xl tracking-[0.25px]">0</div>
-                        <button onclick="updateCart('${item.id}', 1, ${item.price}, ${item.ticketCount})" class="w-1/3 h-full flex items-center justify-center text-2xl text-black active:bg-gray-200 rounded-r-[50px] transition-colors">+</button>
-                    </div>
-                </div>`;
+            if (!(item.id in cart)) cart[item.id] = 0;
+        });
+
+        // 建立分類標題（含早鳥票剩餘數）
+        let titleSuffix = '';
+        if (category.showEarlyBirdRemaining) {
+            const remaining = Math.max(0, EARLY_BIRD_LIMIT - earlyBirdSoldCount);
+            titleSuffix = `<span class="text-sm font-normal text-yellow-300 ml-1">（早鳥票剩餘 ${remaining} 張）</span>`;
+        }
+
+        html += `<div class="space-y-3">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <h2 class="text-xl font-semibold text-white tracking-[0.25px] leading-6">
+                    ${category.title}${titleSuffix}
+                </h2>
+                ${category.sizeInfoLink ? `
+                <a href="${category.sizeInfoLink}" target="_blank" rel="noopener"
+                   class="text-xs text-yellow-300 underline underline-offset-2 flex-shrink-0">
+                    📏 尺寸說明 →
+                </a>` : ''}
+            </div>
+            ${category.note ? `<p class="text-[11px] text-white/50">${category.note}</p>` : ''}
+            <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">`;
+
+        activeItems.forEach(item => {
+            const isTbd = item.price === null;
+
+            // 尺寸徽章 - 優先用分類層級連結，否則用全域連結
+            const sizeLinkUrl = category.sizeInfoLink || SIZE_INFO_URL;
+            const sizeBadgeHtml = item.hasSize
+                ? `<a href="${sizeLinkUrl}" target="_blank" rel="noopener" class="size-badge">尺寸</a>`
+                : '';
+
+            // 價格顯示
+            let priceHtml = '';
+            if (isTbd) {
+                priceHtml = `<span class="text-sm text-white/50 italic">待公布</span>`;
             } else {
-                let imgContent = item.usePlusComponent 
-                    ? `<span class="text-3xl font-light text-black pb-1">+</span>`
-                    : `<img src="${item.image}" class="w-7 h-7" alt="+" onerror="this.style.display='none'">`;
-                
-                topVisualHtml = `
-                <div class="flex w-[273px] h-[182px] items-end justify-end p-2 absolute top-0 left-0 rounded-[10px_10px_0px_0px]">
-                    <div class="flex flex-col items-center justify-center gap-2">
-                        <button onclick="updateCart('${item.id}', 1, ${item.price}, ${item.ticketCount})" class="relative w-12 h-12 bg-white rounded-3xl flex items-center justify-center shadow-lg active:scale-95 transition-transform">
-                            ${imgContent}
-                        </button>
-                        <div id="qty-container-${item.id}" class="hidden bg-white text-black px-3 py-1 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">
-                            <span onclick="updateCart('${item.id}', -1, ${item.price}, ${item.ticketCount})" class="cursor-pointer px-1">-</span>
-                            <span id="qty-${item.id}">0</span>
-                        </div>
-                    </div>
-                </div>`;
+                priceHtml = `<span class="text-2xl font-bold text-white">$${item.price}</span>`;
+                if (item.originalPrice) {
+                    priceHtml += `<span class="text-sm text-white/55 line-through ml-1">$${item.originalPrice}</span>`;
+                }
             }
 
+            // 備註（如移除時間說明）
+            const itemNoteHtml = item.note
+                ? `<p class="text-[10px] text-white/40 leading-tight">${item.note}</p>`
+                : '';
+
+            // 數量控制（待公布商品不顯示）
+            const controlsHtml = isTbd
+                ? `<div class="tbd-badge">價格待公布</div>`
+                : `<div class="qty-control">
+                    <div class="qty-btn" onclick="updateCart('${item.id}', -1, ${item.price}, ${item.ticketCount})">−</div>
+                    <span id="qty-${item.id}" class="text-black font-semibold text-lg min-w-[20px] text-center">0</span>
+                    <div class="qty-btn" onclick="updateCart('${item.id}', 1, ${item.price}, ${item.ticketCount})">+</div>
+                  </div>`;
+
             html += `
-            <div class="relative w-[273px] h-[257px] bg-[#ffffff1a] rounded-[10px] shadow-[0px_4px_25px_#00000059] flex-shrink-0">
-                ${topVisualHtml}
-                <div class="flex flex-wrap w-[94%] items-end gap-[0px_4px] absolute top-[calc(50%+62px)] left-[3%]">
-                    <div class="w-[257px] font-semibold text-sm leading-[25px] text-white tracking-[0.25px]">${item.name}</div>
-                    <div class="font-semibold text-white text-2xl tracking-[0.25px] leading-[34px]">$${item.price}</div>
-                    ${item.original ? `<div class="font-medium text-[#ffffffcc] text-base leading-8 line-through tracking-[0.25px]">$${item.original}</div>` : ''}
+            <div class="product-card">
+                <div class="product-card-top">
+                    <span class="text-5xl relative z-10">${item.emoji}</span>
+                    ${sizeBadgeHtml}
+                </div>
+                <div class="product-card-body">
+                    <div class="text-sm font-medium text-white leading-snug min-h-[38px] flex items-start">${item.name}</div>
+                    <div class="flex items-baseline gap-1 flex-wrap">${priceHtml}</div>
+                    ${itemNoteHtml}
+                    ${controlsHtml}
                 </div>
             </div>`;
         });
+
         html += `</div></div>`;
     });
+
     container.innerHTML = html;
     updateBottomButton();
 }
 
+// ==========================================
+// 購物車
+// ==========================================
 function updateCart(id, delta, price, tCount) {
-    let current = cart[id];
-    let next = current + delta;
-    if (next < 0) next = 0;
-    
+    let current = cart[id] || 0;
+    let next = Math.max(0, current + delta);
     let diff = next - current;
     cart[id] = next;
-    
+
     totalTickets += (diff * tCount);
-    totalPrice += (diff * price);
-    
-    const qtyElement = document.getElementById(`qty-${id}`);
-    if(qtyElement) {
-        qtyElement.innerText = next;
-        // 處理沒有背景圖時的數量顯示 UI 邏輯
-        const qtyContainer = document.getElementById(`qty-container-${id}`);
-        if(qtyContainer) {
-            if(next > 0) qtyContainer.classList.remove('hidden');
-            else qtyContainer.classList.add('hidden');
-        }
-    }
-    
+    totalPrice   += (diff * price);
+
+    const qtyEl = document.getElementById(`qty-${id}`);
+    if (qtyEl) qtyEl.innerText = next;
+
     updateBottomButton();
 }
 
@@ -290,7 +495,7 @@ function updateBottomButton() {
         btn.innerText = "請選擇商品";
         btn.disabled = true;
     } else if (totalTickets === 0) {
-        btn.innerText = `確認總額 $${totalPrice.toLocaleString()} (無劃位)`;
+        btn.innerText = `確認總額 $${totalPrice.toLocaleString()}（無劃位）`;
         btn.disabled = false;
     } else {
         btn.innerText = `確認並開始劃位（${totalTickets}）`;
@@ -298,33 +503,49 @@ function updateBottomButton() {
     }
 }
 
+// ==========================================
+// 初始化
+// ==========================================
 window.onload = function() {
+    checkSiteClose();
     renderProducts();
+
+    // 背景預載：座位狀態 + 早鳥票已售數量
     fetch(`${GAS_URL}?action=seatStatus`)
         .then(res => res.json())
         .then(json => {
             if (json.result === "success") {
-                (json.seats || []).forEach(([id, status]) => { seatStatusMap[String(id)] = String(status); });
+                (json.seats || []).forEach(([id, status]) => {
+                    seatStatusMap[String(id)] = String(status);
+                });
+                if (typeof json.earlyBirdSold === 'number') {
+                    earlyBirdSoldCount = json.earlyBirdSold;
+                    renderProducts(); // 重新渲染以更新剩餘票數
+                }
                 isDataPreloaded = true;
             }
-        }).catch(() => console.log("背景預載失敗"));
+        })
+        .catch(() => console.log("背景預載失敗，將於進入劃位時重試"));
 };
 
+// ==========================================
+// 頁面切換
+// ==========================================
 async function goToSeats() {
-    const name = document.getElementById("userName").value.trim();
-    const phone = document.getElementById("userPhone").value.trim();
+    const name      = document.getElementById("userName").value.trim();
+    const phone     = document.getElementById("userPhone").value.trim();
     const className = document.getElementById("userClass").value.trim();
-    
+
     if (!name || !phone || !className) {
-        Swal.fire({ 
-            icon: 'warning', 
-            title: '資料未填妥', 
-            text: '姓名、電話、班級皆為必填！', 
+        Swal.fire({
+            icon: 'warning', title: '資料未填妥',
+            text: '姓名、電話、班級皆為必填！',
             customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' }
         });
         return;
     }
 
+    // 沒有票券 → 直接送出（周邊商品不需劃位）
     if (totalTickets === 0) {
         submitOrder();
         return;
@@ -332,24 +553,35 @@ async function goToSeats() {
 
     document.getElementById("max-seats").innerText = totalTickets;
 
+    // 若尚未預載，嘗試主動載入；失敗也繼續（後端送出時才是真正衝突檢查）
     if (!isDataPreloaded) {
         showLoading("載入最新座位中...");
         try {
-            const res = await fetch(`${GAS_URL}?action=seatStatus`);
+            const res  = await fetch(`${GAS_URL}?action=seatStatus`);
             const json = await res.json();
             if (json.result === "success") {
                 seatStatusMap = {};
-                json.seats.forEach(([id, status]) => { seatStatusMap[String(id)] = String(status); });
+                (json.seats || []).forEach(([id, status]) => {
+                    seatStatusMap[String(id)] = String(status);
+                });
+                if (typeof json.earlyBirdSold === 'number') {
+                    earlyBirdSoldCount = json.earlyBirdSold;
+                }
                 isDataPreloaded = true;
-            } else throw new Error("Load failed");
+            }
         } catch (e) {
-            Swal.fire({ icon: 'error', title: '連線錯誤', text: '請檢查網路', customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' } });
-            hideLoading();
-            return;
+            // 座位圖載入失敗時以空狀態繼續，後端送出會做最終衝突確認
+            Swal.fire({
+                toast: true, position: 'top', icon: 'warning',
+                title: '座位狀態讀取失敗，顯示可能不準確',
+                text: '送出時後端仍會確認，請放心繼續',
+                showConfirmButton: false, timer: 3500,
+                background: '#333', color: '#fff'
+            });
         }
         hideLoading();
     }
-    
+
     initSeats();
     document.getElementById("step-1").classList.add("hidden");
     document.getElementById("step-2").classList.remove("hidden");
@@ -363,46 +595,47 @@ function goBack() {
     document.getElementById("bottom-bar").classList.remove("translate-y-full");
 }
 
+// ==========================================
+// 座位圖
+// ==========================================
 function initSeats() {
     const container = document.getElementById("seatContainer");
     container.innerHTML = "";
-    selectedSeats = []; 
+    selectedSeats = [];
 
-    const cols = ['A','B','C','D','E','F','G', 'GAP1', 'H','I','J','K','L','M','N','O','P','Q','R','S','T', 'GAP2', 'U','V','W','X','Y','Z','#'];
-    const rows = [1, 2, 3, 4, 5, 'GAP3', 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    const cols = ['A','B','C','D','E','F','G','GAP1','H','I','J','K','L','M','N','O','P','Q','R','S','T','GAP2','U','V','W','X','Y','Z','#'];
+    const rows = [1,2,3,4,5,'GAP3',6,7,8,9,10,11,12,13,14,15];
 
     rows.forEach(r => {
         cols.forEach(c => {
             const div = document.createElement("div");
 
             if (r === 'GAP3' || c === 'GAP1' || c === 'GAP2') {
-                div.classList.add("seat", "aisle");
+                div.classList.add("seat","aisle");
                 container.appendChild(div); return;
             }
 
             const seatId = c + r;
             div.classList.add("seat"); div.innerText = seatId;
 
-            let staticType = 'white'; 
-            
-            // 嚴格把關：無橘色，藍色為 U~# 區的老人區
-            if (r >= 1 && r <= 5 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue'; 
-            if (r === 1 || r === 2) { if (['A','B','C','D'].includes(c)) staticType = 'red'; }
-            if (r >= 1 && r <= 5) { if (['E','F','G'].includes(c)) staticType = 'red'; }
+            let staticType = 'white';
+
+            if (r >= 1 && r <= 5 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue';
+            if ((r === 1 || r === 2) && ['A','B','C','D'].includes(c)) staticType = 'red';
+            if (r >= 1 && r <= 5 && ['E','F','G'].includes(c)) staticType = 'red';
             if ((r === 14 || r === 15) && ['F','G'].includes(c)) staticType = 'red';
-            if (r === 15 && c === 'E') staticType = 'grey'; 
+            if (r === 15 && c === 'E') staticType = 'grey';
             if ((r === 14 || r === 15) && ['H','I','J','K','L','M','N','O','P','Q','R','S','T'].includes(c)) staticType = 'green';
-            if (r >= 11 && r <= 13) {
-                if (['L','M','N','O','P'].includes(c)) staticType = 'yellow';
-                if (['H','I','J','K', 'Q','R','S','T'].includes(c)) staticType = 'grey';
-            }
+            if (r >= 11 && r <= 13 && ['L','M','N','O','P'].includes(c)) staticType = 'yellow';
+            if (r >= 11 && r <= 13 && ['H','I','J','K','Q','R','S','T'].includes(c)) staticType = 'grey';
 
             if (staticType !== 'white') {
                 div.classList.add(`static-${staticType}`);
             } else {
                 const status = seatStatusMap[seatId] || "available";
-                if (status === "occupied") div.classList.add("occupied");
-                else {
+                if (status === "occupied") {
+                    div.classList.add("occupied");
+                } else {
                     div.classList.add("available");
                     div.onclick = () => toggleSeat(seatId, div);
                 }
@@ -414,12 +647,18 @@ function initSeats() {
 
 function toggleSeat(id, el) {
     if (el.classList.contains("occupied") || el.className.includes("static-")) return;
+
     if (selectedSeats.includes(id)) {
         selectedSeats = selectedSeats.filter(s => s !== id);
         el.classList.remove("selected");
     } else {
         if (selectedSeats.length >= totalTickets) {
-            Swal.fire({ toast: true, position: 'top', icon: 'warning', title: `只能選 ${totalTickets} 個位子`, showConfirmButton: false, timer: 1500, background: '#333', color: '#fff' });
+            Swal.fire({
+                toast: true, position: 'top', icon: 'warning',
+                title: `只能選 ${totalTickets} 個位子`,
+                showConfirmButton: false, timer: 1500,
+                background: '#333', color: '#fff'
+            });
             return;
         }
         selectedSeats.push(id);
@@ -427,111 +666,144 @@ function toggleSeat(id, el) {
     }
 }
 
+// ==========================================
+// 送出訂單
+// ==========================================
 async function submitOrder() {
     if (totalTickets > 0 && selectedSeats.length !== totalTickets) {
-        Swal.fire({ icon: 'warning', title: '座位未選滿', text: `需劃位 ${totalTickets} 個，目前已選 ${selectedSeats.length} 個。`, customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' } });
+        Swal.fire({
+            icon: 'warning', title: '座位未選滿',
+            text: `需劃位 ${totalTickets} 個，目前已選 ${selectedSeats.length} 個。`,
+            customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' }
+        });
         return;
     }
 
+    // 建立品項清單
     const itemsList = [];
     let itemsTextHtml = "";
+
     productCategories.forEach(cat => {
         cat.items.forEach(item => {
-            if(cart[item.id] > 0) {
-                itemsList.push({ name: item.name, qty: cart[item.id], price: item.price });
+            if (cart[item.id] > 0) {
+                itemsList.push({
+                    name: item.name,
+                    qty: cart[item.id],
+                    price: item.price,
+                    categoryId: cat.id,
+                    isEarlyBird: item.isEarlyBird || false
+                });
+                const subtotal = (item.price * cart[item.id]).toLocaleString();
                 itemsTextHtml += `
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-                        <div>
-                            <div style="color: #aaa; font-size: 12px;">${cat.title.replace('（早鳥票剩餘 8 張）','').replace('周邊','')}：</div>
-                            <div style="font-size: 14px; font-weight: 500;">${item.name} <span style="font-size: 12px; margin-left: 5px;">x${cart[item.id]}</span></div>
-                        </div>
-                        <div style="font-size: 18px; font-weight: bold;">$${(item.price * cart[item.id]).toLocaleString()}</div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+                    <div>
+                        <div style="color:#aaa; font-size:12px;">${cat.title.replace('（早鳥票剩餘 ' + (EARLY_BIRD_LIMIT - earlyBirdSoldCount) + ' 張）','')}</div>
+                        <div style="font-size:14px; font-weight:500;">${item.name} <span style="font-size:12px; margin-left:5px;">x${cart[item.id]}</span></div>
                     </div>
-                    <hr style="border: 0.5px solid rgba(255,255,255,0.2); margin: 10px 0;">
-                `;
+                    <div style="font-size:18px; font-weight:bold;">$${subtotal}</div>
+                </div>
+                <hr style="border:0.5px solid rgba(255,255,255,0.2); margin:10px 0;">`;
             }
         });
     });
 
     const payload = {
-        name: document.getElementById("userName").value.trim(),
-        phone: document.getElementById("userPhone").value.trim(),
+        name:      document.getElementById("userName").value.trim(),
+        phone:     document.getElementById("userPhone").value.trim(),
         className: document.getElementById("userClass").value.trim(),
-        items: itemsList,
-        seats: selectedSeats,
-        totalPrice: totalPrice
+        items:     itemsList,
+        seats:     selectedSeats,
+        totalPrice
     };
 
     showLoading("訂單傳送中...");
 
     try {
-        const response = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
         const resData = await response.json();
         hideLoading();
 
         if (resData.result === "success") {
-            const receiptHtml = `
-                <div style="text-align: left; font-size: 14px; line-height: 1.6; margin-top: 10px;">
-                    <ul style="padding-left: 18px; margin-bottom: 20px; color: #ddd; font-size: 13px;">
-                        <li>請於 <strong style="color: #fff;">一週內</strong> 將款項交給 <strong style="color: #fff;">206 班 林佑家</strong>，否則預訂商品與劃位將自動失效！</li>
-                        <li>門票將於六月跑班發送，若您非本校學生或是於跑班後才購票，則活動當天憑學生證或身分證入場</li>
-                        <li>6/10 前訂購周邊並繳費成功，將於成發當天入場時領取。6/10 後的訂單預估 8/4 到貨，再另行通知取貨方法，請關注 NLDC instagram <strong style="color: #fff;">@nldc_25th</strong></li>
-                    </ul>
-                    
-                    <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #fff;">訂單資料</h3>
-                    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
-                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">
-                            <div style="color: #aaa; font-size: 12px;">姓名</div>
-                            <div style="font-weight: bold;">${payload.name}</div>
-                        </div>
-                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">
-                            <div style="color: #aaa; font-size: 12px;">聯絡電話</div>
-                            <div style="font-weight: bold;">${payload.phone}</div>
-                        </div>
-                        ${totalTickets > 0 ? `
-                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">
-                            <div style="color: #aaa; font-size: 12px;">劃位代號</div>
-                            <div style="font-weight: bold; color: #FFEB3B;">${selectedSeats.join(", ")}</div>
-                        </div>` : ''}
-                        <div style="flex: 1; min-width: 120px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">
-                            <div style="color: #aaa; font-size: 12px;">校內代理人</div>
-                            <div style="font-weight: bold;">${payload.className}</div>
-                        </div>
-                    </div>
+            const seatsDisplay = selectedSeats.length > 0
+                ? `<div style="flex:1; min-width:120px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;">
+                       <div style="color:#aaa; font-size:12px;">劃位代號</div>
+                       <div style="font-weight:bold; color:#FFEB3B;">${selectedSeats.join(", ")}</div>
+                   </div>`
+                : '';
 
-                    <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #fff;">商品明細</h3>
-                    ${itemsTextHtml}
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 20px;">
-                        <div style="color: #aaa; font-size: 14px;">金額總計</div>
-                        <div style="font-size: 26px; font-weight: bold; color: #fff;">$${totalPrice.toLocaleString()}</div>
+            const receiptHtml = `
+            <div style="text-align:left; font-size:14px; line-height:1.6; margin-top:10px;">
+                <ul style="padding-left:18px; margin-bottom:20px; color:#ddd; font-size:13px;">
+                    <li>請於 <strong style="color:#fff;">一週內</strong> 將款項交給 <strong style="color:#fff;">206 班 林佑家</strong>，否則預訂商品與劃位將自動失效！</li>
+                    <li>門票將於六月跑班發送。若您非本校學生或跑班後才購票，活動當天憑學生證或身分證入場。</li>
+                    <li>6/10 前訂購周邊並繳費成功，將於成發當天入場時領取。6/10 後的訂單預估 8/4 到貨，再另行通知取貨方法，請關注 NLDC IG <strong style="color:#fff;">@nldc_25th</strong></li>
+                </ul>
+
+                <h3 style="font-size:18px; font-weight:bold; margin-bottom:10px; color:#fff;">訂單資料</h3>
+                <div style="display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px;">
+                    <div style="flex:1; min-width:120px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;">
+                        <div style="color:#aaa; font-size:12px;">姓名</div>
+                        <div style="font-weight:bold;">${payload.name}</div>
+                    </div>
+                    <div style="flex:1; min-width:120px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;">
+                        <div style="color:#aaa; font-size:12px;">聯絡電話</div>
+                        <div style="font-weight:bold;">${payload.phone}</div>
+                    </div>
+                    ${seatsDisplay}
+                    <div style="flex:1; min-width:120px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;">
+                        <div style="color:#aaa; font-size:12px;">校內代理人</div>
+                        <div style="font-weight:bold;">${payload.className}</div>
                     </div>
                 </div>
-            `;
 
-            await Swal.fire({ 
-                title: '訂購與劃位成功', 
-                html: receiptHtml, 
-                confirmButtonText: '完成訂單', 
-                allowOutsideClick: false, 
+                <h3 style="font-size:18px; font-weight:bold; margin-bottom:15px; color:#fff;">商品明細</h3>
+                ${itemsTextHtml}
+
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:20px;">
+                    <div style="color:#aaa; font-size:14px;">金額總計</div>
+                    <div style="font-size:26px; font-weight:bold; color:#fff;">$${totalPrice.toLocaleString()}</div>
+                </div>
+            </div>`;
+
+            await Swal.fire({
+                title: '訂購與劃位成功 🎉',
+                html: receiptHtml,
+                confirmButtonText: '完成訂單',
+                allowOutsideClick: false,
                 customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', htmlContainer: 'swal-dark-html', confirmButton: 'swal-dark-confirm' }
             });
-            location.reload(); 
+            location.reload();
         } else {
-            Swal.fire({ icon: 'error', title: '劃位失敗', text: resData.message || '座位可能剛被搶走，請重新選擇！', customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' } });
-            isDataPreloaded = false; 
+            Swal.fire({
+                icon: 'error', title: '劃位失敗',
+                text: resData.message || '座位可能剛被搶走，請重新選擇！',
+                customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' }
+            });
+            isDataPreloaded = false;
         }
     } catch (err) {
         hideLoading();
-        Swal.fire({ icon: 'error', title: '連線錯誤', text: '傳送失敗，請檢查網路連線後再試一次！', customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' } });
+        Swal.fire({
+            icon: 'error', title: '連線錯誤',
+            text: '傳送失敗，請檢查網路連線後再試一次！',
+            customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' }
+        });
     }
 }
 
+// ==========================================
+// 工具函式
+// ==========================================
 function showLoading(text) {
     document.getElementById("loading-text").innerText = text || "資料讀取中...";
     document.getElementById("loading-overlay").classList.remove("hidden");
 }
-function hideLoading() { document.getElementById("loading-overlay").classList.add("hidden"); }
+function hideLoading() {
+    document.getElementById("loading-overlay").classList.add("hidden");
+}
 </script>
 </body>
 </html>
