@@ -610,11 +610,27 @@ function initSeats() {
         cols.forEach(c => {
             const div = document.createElement("div");
 
+            // 保留走道區域，不產生座位
             if (r === 'GAP3' || c === 'GAP1' || c === 'GAP2') {
-                div.classList.add("seat","aisle");
-                container.appendChild(div); return;
+                div.classList.add("seat", "aisle");
+                container.appendChild(div); 
+                return;
             }
 
+            const seatId = c + r;
+            div.classList.add("seat"); 
+            div.innerText = seatId;
+
+            // --- 核心修改部分 ---
+            // 移除原本的 staticType (顏色保留區) 以及 seatStatusMap (後端已售出) 的判斷
+            // 直接將所有座位加上 "available" (可劃位) 樣式，並綁定點擊事件
+            div.classList.add("available");
+            div.onclick = () => toggleSeat(seatId, div);
+            
+            container.appendChild(div);
+        });
+    });
+}
             const seatId = c + r;
             div.classList.add("seat"); div.innerText = seatId;
 
