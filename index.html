@@ -45,26 +45,25 @@
             border-radius: 8px;
             backdrop-filter: blur(4px);
         }
+        
+        /* 座位核心樣式 */
         .seat {
             aspect-ratio: 1 / 1; 
             border-radius: 2px; 
             font-size: 7px; 
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: transform 0.1s; user-select: none;
+            transition: transform 0.1s, background 0.2s; user-select: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #333;
+            background: var(--available);
         }
         .seat:active { transform: scale(0.9); }
         
-        .available { background: var(--available); }
-        .occupied { background: var(--occupied); color: #fff; cursor: not-allowed; opacity: 0.5; }
-        .selected { background: var(--selected); color: black; font-weight: bold; }
-        
-        .seat.static-red    { background: #b71c1c; color: transparent; cursor: not-allowed; }
-        .seat.static-yellow { background: #fbc02d; color: transparent; cursor: not-allowed; }
-        .seat.static-blue   { background: #1976d2; color: transparent; cursor: not-allowed; }
-        .seat.static-green  { background: #388e3c; color: transparent; cursor: not-allowed; }
-        .seat.static-grey   { background: #757575; color: transparent; cursor: not-allowed; }
-        .seat.aisle         { background: transparent; pointer-events: none; }
+        /* 狀態樣式 */
+        .seat.available { background: var(--available); }
+        .seat.occupied { background: var(--occupied) !important; color: #fff !important; cursor: not-allowed; opacity: 0.5; border-color: #888; }
+        .seat.selected { background: var(--selected) !important; color: #000 !important; font-weight: bold; border-color: #000; }
+        .seat.aisle    { background: transparent !important; border: none !important; pointer-events: none; color: transparent !important; }
 
         .hidden { display: none !important; }
         
@@ -86,79 +85,19 @@
         .swal-dark-html     { text-align: left !important; color: #ddd !important; }
         .swal-dark-confirm  { background: #fff !important; color: #000 !important; font-weight: bold !important; border-radius: 8px !important; width: 100% !important; padding: 12px !important; }
 
-        /* 商品卡片 */
         .product-card {
-            width: 190px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            flex-shrink: 0;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.12);
-            display: flex;
-            flex-direction: column;
+            width: 190px; background: rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            flex-shrink: 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column;
         }
-        .product-card-top {
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: linear-gradient(135deg, rgba(160,92,99,0.5), rgba(70,6,12,0.7));
-        }
-        .size-badge {
-            position: absolute;
-            top: 8px; right: 8px;
-            background: #FFEB3B;
-            color: #000;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 7px;
-            border-radius: 99px;
-            text-decoration: none;
-        }
-        .product-card-body {
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 1;
-        }
-        .qty-control {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: white;
-            border-radius: 99px;
-            padding: 2px 4px;
-        }
-        .qty-btn {
-            width: 32px; height: 32px;
-            display: flex; align-items: center; justify-content: center;
-            color: black;
-            font-size: 22px;
-            font-weight: 300;
-            border-radius: 99px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            transition: background 0.1s;
-        }
+        .product-card-top { height: 120px; display: flex; align-items: center; justify-content: center; position: relative; background: linear-gradient(135deg, rgba(160,92,99,0.5), rgba(70,6,12,0.7)); }
+        .size-badge { position: absolute; top: 8px; right: 8px; background: #FFEB3B; color: #000; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 99px; text-decoration: none; }
+        .product-card-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .qty-control { display: flex; align-items: center; justify-content: space-between; background: white; border-radius: 99px; padding: 2px 4px; }
+        .qty-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: black; font-size: 22px; font-weight: 300; border-radius: 99px; cursor: pointer; user-select: none; transition: background 0.1s; }
         .qty-btn:active { background: rgba(0,0,0,0.1); }
-        .tbd-badge {
-            text-align: center;
-            font-size: 12px;
-            color: rgba(255,255,255,0.45);
-            padding: 8px 0 4px;
-        }
+        .tbd-badge { text-align: center; font-size: 12px; color: rgba(255,255,255,0.45); padding: 8px 0 4px; }
 
-        /* 網站關閉頁面 */
-        #site-closed {
-            position: fixed; inset: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: linear-gradient(180deg, rgba(175,106,113,1) 0%, rgba(70,6,12,1) 100%);
-            z-index: 99999; text-align: center; padding: 30px;
-        }
+        #site-closed { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(180deg, rgba(175,106,113,1) 0%, rgba(70,6,12,1) 100%); z-index: 99999; text-align: center; padding: 30px; }
     </style>
 </head>
 <body>
@@ -184,7 +123,6 @@
 
 <div class="max-w-md mx-auto p-5 mt-4">
     
-    <!-- Step 1: 填資料 + 選商品 -->
     <div id="step-1" class="space-y-10">
         <div class="space-y-3">
             <h2 class="text-xl font-semibold tracking-[0.25px] mb-4">訂購資料（必填）</h2>
@@ -199,7 +137,6 @@
         <div id="product-container" class="space-y-10"></div>
     </div>
 
-    <!-- Step 2: 劃位 -->
     <div id="step-2" class="hidden space-y-6">
         <div>
             <h2 class="text-2xl font-bold tracking-wide mb-1">
@@ -208,11 +145,9 @@
         </div>
         
         <div class="flex flex-wrap gap-3 text-xs justify-center bg-black/30 p-3 rounded-lg border border-white/10">
-            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-white rounded-sm"></div>可劃位</div>
+            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-white rounded-sm border border-gray-400"></div>可劃位</div>
             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-[#FFEB3B] rounded-sm"></div>已選擇</div>
             <div class="flex items-center gap-1"><div class="w-3 h-3 bg-[#bdbdbd] rounded-sm opacity-50"></div>已售出</div>
-            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-[#b71c1c] rounded-sm"></div>友校/貴賓</div>
-            <div class="flex items-center gap-1"><div class="w-3 h-3 bg-[#1976d2] rounded-sm"></div>老人區</div>
         </div>
 
         <div class="text-center bg-white/10 p-2 text-sm font-bold rounded-lg tracking-widest mt-2 border border-white/20">⬆️ 前方舞台 ⬆️</div>
@@ -444,7 +379,7 @@ function goBack() {
     document.getElementById("bottom-bar").classList.remove("translate-y-full");
 }
 
-/* 修復過後的 initSeats 函數 */
+/* 取消座位顏色，全部設為可點選的白色狀態 */
 function initSeats() {
     const container = document.getElementById("seatContainer");
     container.innerHTML = "";
@@ -457,45 +392,42 @@ function initSeats() {
         cols.forEach(c => {
             const div = document.createElement("div");
 
+            // 1. 處理走道 (隱藏不顯示)
             if (r === 'GAP3' || c === 'GAP1' || c === 'GAP2') {
                 div.classList.add("seat", "aisle");
                 container.appendChild(div); 
                 return;
             }
 
+            // 2. 處理圖片中真正的「無格線真空區塊」
+            if ((r === 12 && ['A','B','C','D','E','F','G'].includes(c)) ||
+                (r === 12 && ['U','V','W','X','Y','Z','#'].includes(c)) ||
+                (r === 15 && ['U','V','W','X','Y','Z','#'].includes(c))) {
+                div.classList.add("seat", "aisle");
+                container.appendChild(div);
+                return;
+            }
+
             const seatId = c + r;
             div.classList.add("seat"); 
-            div.innerText = seatId;
+            div.innerText = seatId; // 顯示 A1, B2 字樣
 
-            let staticType = 'white';
-
-            if (r >= 1 && r <= 5 && ['U','V','W','X','Y','Z','#'].includes(c)) staticType = 'blue';
-            if ((r === 1 || r === 2) && ['A','B','C','D'].includes(c)) staticType = 'red';
-            if (r >= 1 && r <= 5 && ['E','F','G'].includes(c)) staticType = 'red';
-            if ((r === 14 || r === 15) && ['F','G'].includes(c)) staticType = 'red';
-            if (r === 15 && c === 'E') staticType = 'grey';
-            if ((r === 14 || r === 15) && ['H','I','J','K','L','M','N','O','P','Q','R','S','T'].includes(c)) staticType = 'green';
-            if (r >= 11 && r <= 13 && ['L','M','N','O','P'].includes(c)) staticType = 'yellow';
-            if (r >= 11 && r <= 13 && ['H','I','J','K','Q','R','S','T'].includes(c)) staticType = 'grey';
-
-            if (staticType !== 'white') {
-                div.classList.add(`static-${staticType}`);
+            // 3. 判斷後端狀態 (只分「已售出」與「可劃位」)
+            const status = seatStatusMap[seatId] || "available";
+            if (status === "occupied") {
+                div.classList.add("occupied"); // 後端判定已售出
             } else {
-                const status = seatStatusMap[seatId] || "available";
-                if (status === "occupied") {
-                    div.classList.add("occupied");
-                } else {
-                    div.classList.add("available");
-                    div.onclick = () => toggleSeat(seatId, div);
-                }
+                div.classList.add("available"); // 皆可點選
+                div.onclick = () => toggleSeat(seatId, div);
             }
+
             container.appendChild(div);
         });
     });
 }
 
 function toggleSeat(id, el) {
-    if (el.classList.contains("occupied") || el.className.includes("static-")) return;
+    if (el.classList.contains("occupied")) return;
 
     if (selectedSeats.includes(id)) {
         selectedSeats = selectedSeats.filter(s => s !== id);
