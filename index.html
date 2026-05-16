@@ -114,7 +114,7 @@
 </div>
 
 <div class="sticky top-0 z-50 w-full h-[116px] flex flex-col justify-center items-center shadow-lg bg-[#a05c63] border-b border-white/10">
-    <img src="https://i.imgur.com/YOUR_LOGO_ID.png" alt="NLDC M3" class="h-14 object-contain mt-2" onerror="this.style.display='none'">
+    <img src="https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/M3%20LOGO.png" alt="NLDC M3" class="h-14 object-contain mt-2" onerror="this.style.display='none'">
     <div class="mt-2 font-semibold text-[#3f0000] text-xs text-center tracking-[0.25px]">
         NLDC《M3》周邊預購＆訂票系統
     </div>
@@ -172,41 +172,41 @@
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwvIbfw6K0zrMV6l4cXH-ihaiyGUyQ4GxDODSiH2-7Vn6a-bpPaCIbtIn1x67cbx5Yt/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyW0MJhPMWEKtCAUT3kDnv5XKSHH5r7VuoFNDMl0v9jha-Q2Wo4o69Vh-dqYAzTVBvl/exec";
 const SITE_CLOSE_DATE = new Date('2026-07-11T23:00:00+08:00');
-const SIZE_CHART_IMG_URL = "https://i.imgur.com/YOUR_SIZE_CHART.jpg"; 
 
+// 將尺寸表與選項整合
 const SIZES = {
-    jacket: ['S', 'M', 'L', 'XL', '2L'],
-    shirtA: ['S', 'M', 'L', 'XL', '2L', '3L'],
-    shirtB: ['S', 'M', 'L', 'XL', '2L', '3L']
+    jacket: { label: '長袖外套', options: ['S', 'M', 'L', 'XL', '2L'], chartUrl: 'https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/Size_jacket.jpg' },
+    shirtA: { label: '短袖A', options: ['S', 'M', 'L', 'XL', '2L', '3L'], chartUrl: 'https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/Size_ShirtA.jpg' },
+    shirtB: { label: '短袖B', options: ['S', 'M', 'L', 'XL', '2L', '3L'], chartUrl: 'https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/Size_ShirtB.jpg' }
 };
 
 const productCategories = [
     {
         title: "優惠周邊組合", id: "combo",
         items: [
-            { id: "cb1", emoji: "✨", image: "", name: "【小物雙享】跳舞吊飾+杯套", price: 99, originalPrice: 115, ticketCount: 0 },
-            { id: "cb2", emoji: "💫", image: "", name: "【舞者穿搭】短袖A+吊飾A", price: 399, originalPrice: 440, ticketCount: 0, 
-              requiresSize: [{ label: '短袖A', options: SIZES.shirtA }] },
-            { id: "cb3", emoji: "👕", image: "", name: "【雙款短袖】短袖A+短袖B", price: 690, originalPrice: 740, ticketCount: 0, 
-              requiresSize: [{ label: '短袖A', options: SIZES.shirtA }, { label: '短袖B', options: SIZES.shirtB }] },
-            { id: "cb4", emoji: "🥋", image: "", name: "【戰袍全集】外套+短袖A+短袖B", price: 1390, originalPrice: 1490, ticketCount: 0, 
-              requiresSize: [{ label: '長袖外套', options: SIZES.jacket }, { label: '短袖A', options: SIZES.shirtA }, { label: '短袖B', options: SIZES.shirtB }] }
+            { id: "cb1", emoji: "✨", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/package_two_small.png", name: "【小物雙享】跳舞吊飾+杯套", price: 99, originalPrice: 115, ticketCount: 0 },
+            { id: "cb2", emoji: "💫", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/package_dancer.png", name: "【舞者穿搭】短袖A+吊飾A", price: 399, originalPrice: 440, ticketCount: 0, 
+              requiresSize: [SIZES.shirtA] },
+            { id: "cb3", emoji: "👕", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/package_clothes.png", name: "【雙款短袖】短袖A+短袖B", price: 690, originalPrice: 740, ticketCount: 0, 
+              requiresSize: [SIZES.shirtA, SIZES.shirtB] },
+            { id: "cb4", emoji: "🥋", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/package_clothes.png", name: "【戰袍全集】外套+短袖A+短袖B", price: 1390, originalPrice: 1490, ticketCount: 0, 
+              requiresSize: [SIZES.jacket, SIZES.shirtA, SIZES.shirtB] }
         ]
     },
     {
         title: "周邊單品", id: "single",
         items: [
-            { id: "sg1", emoji: "👕", image: "", name: "短袖A", price: 390, ticketCount: 0, 
-              requiresSize: [{ label: '短袖A', options: SIZES.shirtA }] },
-            { id: "sg2", emoji: "👔", image: "", name: "短袖B", price: 350, ticketCount: 0, 
-              requiresSize: [{ label: '短袖B', options: SIZES.shirtB }] },
-            { id: "sg3", emoji: "🧥", image: "", name: "長袖外套",  price: 750, ticketCount: 0, 
-              requiresSize: [{ label: '長袖外套', options: SIZES.jacket }] },
-            { id: "sg4", emoji: "🪬", image: "", name: "吊飾A（我愛跳舞）",  price: 50,  ticketCount: 0 },
-            { id: "sg5", emoji: "🪬", image: "", name: "吊飾B（六人）",  price: 50,  ticketCount: 0 },
-            { id: "sg6", emoji: "🥤", image: "", name: "杯套",  price: 65,  ticketCount: 0 }
+            { id: "sg1", emoji: "👕", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/merch_shirtA.png", name: "短袖A", price: 390, ticketCount: 0, 
+              requiresSize: [SIZES.shirtA] },
+            { id: "sg2", emoji: "👔", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/merch_shirtB.png", name: "短袖B", price: 350, ticketCount: 0, 
+              requiresSize: [SIZES.shirtB] },
+            { id: "sg3", emoji: "🧥", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/merch_jacket.png", name: "長袖外套",  price: 750, ticketCount: 0, 
+              requiresSize: [SIZES.jacket] },
+            { id: "sg4", emoji: "🪬", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/merch_pendant_dance.png", name: "吊飾A（我愛跳舞）",  price: 50,  ticketCount: 0 },
+            { id: "sg5", emoji: "🪬", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/merch_pendant_people.png", name: "吊飾B（六人）",  price: 50,  ticketCount: 0 },
+            { id: "sg6", emoji: "🥤", image: "https://pub-1c7cc7127bc141359f68b00c215f4665.r2.dev/merch_cup.png", name: "杯套",  price: 65,  ticketCount: 0 }
         ]
     },
     {
@@ -231,15 +231,37 @@ function checkSiteClose() {
     }
 }
 
-function showSizeChart() {
+// 根據商品 ID 動態抓取對應的尺寸表圖片顯示
+function showSizeCharts(itemId) {
+    let targetItem = null;
+    productCategories.forEach(cat => {
+        const found = cat.items.find(i => i.id === itemId);
+        if (found) targetItem = found;
+    });
+
+    if (!targetItem || !targetItem.requiresSize) return;
+
+    let chartsHtml = '<div class="space-y-4 pt-2">';
+    targetItem.requiresSize.forEach(req => {
+        if (req.chartUrl) {
+            chartsHtml += `
+                <div>
+                    <h4 class="text-white font-bold mb-2 text-sm text-left px-1">${req.label}</h4>
+                    <img src="${req.chartUrl}" alt="${req.label}尺寸表" class="w-full rounded-lg border border-white/20">
+                </div>
+            `;
+        }
+    });
+    chartsHtml += '</div>';
+
     Swal.fire({
         title: '服飾尺寸表',
-        imageUrl: SIZE_CHART_IMG_URL,
-        imageAlt: '尺寸表圖片',
+        html: chartsHtml,
         confirmButtonText: '關閉',
         customClass: { 
             popup: 'swal-dark-popup', 
             title: 'swal-dark-title text-center', 
+            htmlContainer: 'swal-dark-html p-0 m-0',
             confirmButton: 'swal-dark-confirm' 
         }
     });
@@ -266,7 +288,7 @@ function renderProducts() {
 
         activeItems.forEach(item => {
             const isTbd = item.price === null;
-            const sizeBadgeHtml = item.requiresSize ? `<button onclick="showSizeChart()" class="size-badge">尺寸表</button>` : '';
+            const sizeBadgeHtml = item.requiresSize ? `<button onclick="showSizeCharts('${item.id}')" class="size-badge shadow-md">尺寸表</button>` : '';
             const imageHtml = item.image 
                 ? `<img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover relative z-10">` 
                 : `<span class="text-5xl relative z-10">${item.emoji}</span>`;
