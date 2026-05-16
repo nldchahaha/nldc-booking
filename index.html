@@ -114,7 +114,6 @@
 </div>
 
 <div class="sticky top-0 z-50 w-full h-[116px] flex flex-col justify-center items-center shadow-lg bg-[#a05c63] border-b border-white/10">
-    <!-- 替換此處的 src 為你的活動 LOGO 網址 -->
     <img src="https://i.imgur.com/YOUR_LOGO_ID.png" alt="NLDC M3" class="h-14 object-contain mt-2" onerror="this.style.display='none'">
     <div class="mt-2 font-semibold text-[#3f0000] text-xs text-center tracking-[0.25px]">
         NLDC《M3》周邊預購＆訂票系統
@@ -136,7 +135,6 @@
 
         <div id="product-container" class="space-y-10"></div>
         
-        <!-- 動態產生尺寸選擇的區塊 -->
         <div id="size-section" class="hidden space-y-4 p-5 bg-white/5 border border-white/20 rounded-xl">
             <h2 class="text-lg font-bold text-yellow-300">📏 請選擇商品尺寸</h2>
             <p class="text-xs text-white/60 mb-2">您選購的商品包含服飾，請為每一件指定尺寸。</p>
@@ -176,10 +174,8 @@
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwvIbfw6K0zrMV6l4cXH-ihaiyGUyQ4GxDODSiH2-7Vn6a-bpPaCIbtIn1x67cbx5Yt/exec";
 const SITE_CLOSE_DATE = new Date('2026-07-11T23:00:00+08:00');
-// 請將此處替換為你們的尺寸表圖片網址
 const SIZE_CHART_IMG_URL = "https://i.imgur.com/YOUR_SIZE_CHART.jpg"; 
 
-// 定義各品項的尺寸選項
 const SIZES = {
     jacket: ['S', 'M', 'L', 'XL', '2L'],
     shirtA: ['S', 'M', 'L', 'XL', '2L', '3L'],
@@ -190,27 +186,27 @@ const productCategories = [
     {
         title: "優惠周邊組合", id: "combo",
         items: [
-            // image 屬性請填寫圖片網址，若留空則會顯示 emoji
-            { id: "cb1", emoji: "✨", image: "", name: "小物雙享：吊飾＋杯套", price: null, ticketCount: 0 },
-            { id: "cb2", emoji: "💫", image: "", name: "舞者穿搭：短袖B＋吊飾", price: null, ticketCount: 0, 
-              requiresSize: [{ label: '短袖B', options: SIZES.shirtB }] },
-            { id: "cb3", emoji: "👕", image: "", name: "雙款短袖：短袖A＋短袖B", price: null, ticketCount: 0, 
+            { id: "cb1", emoji: "✨", image: "", name: "【小物雙享】跳舞吊飾+杯套", price: 99, originalPrice: 115, ticketCount: 0 },
+            { id: "cb2", emoji: "💫", image: "", name: "【舞者穿搭】短袖A+吊飾A", price: 399, originalPrice: 440, ticketCount: 0, 
+              requiresSize: [{ label: '短袖A', options: SIZES.shirtA }] },
+            { id: "cb3", emoji: "👕", image: "", name: "【雙款短袖】短袖A+短袖B", price: 690, originalPrice: 740, ticketCount: 0, 
               requiresSize: [{ label: '短袖A', options: SIZES.shirtA }, { label: '短袖B', options: SIZES.shirtB }] },
-            { id: "cb4", emoji: "🥋", image: "", name: "戰袍全集：外套＋短袖A＋短袖B", price: null, ticketCount: 0, 
-              requiresSize: [{ label: '外套', options: SIZES.jacket }, { label: '短袖A', options: SIZES.shirtA }, { label: '短袖B', options: SIZES.shirtB }] }
+            { id: "cb4", emoji: "🥋", image: "", name: "【戰袍全集】外套+短袖A+短袖B", price: 1390, originalPrice: 1490, ticketCount: 0, 
+              requiresSize: [{ label: '長袖外套', options: SIZES.jacket }, { label: '短袖A', options: SIZES.shirtA }, { label: '短袖B', options: SIZES.shirtB }] }
         ]
     },
     {
         title: "周邊單品", id: "single",
         items: [
-            { id: "sg1", emoji: "👕", image: "", name: "短袖A (白)", price: 420, ticketCount: 0, 
+            { id: "sg1", emoji: "👕", image: "", name: "短袖A", price: 390, ticketCount: 0, 
               requiresSize: [{ label: '短袖A', options: SIZES.shirtA }] },
-            { id: "sg2", emoji: "👔", image: "", name: "短袖B (青)", price: 380, ticketCount: 0, 
+            { id: "sg2", emoji: "👔", image: "", name: "短袖B", price: 350, ticketCount: 0, 
               requiresSize: [{ label: '短袖B', options: SIZES.shirtB }] },
-            { id: "sg3", emoji: "🧥", image: "", name: "外套 (黑)",  price: 850, ticketCount: 0, 
-              requiresSize: [{ label: '外套', options: SIZES.jacket }] },
-            { id: "sg4", emoji: "🪬", image: "", name: "吊飾",  price: 60,  ticketCount: 0 },
-            { id: "sg5", emoji: "🥤", image: "", name: "杯套",  price: 85,  ticketCount: 0 }
+            { id: "sg3", emoji: "🧥", image: "", name: "長袖外套",  price: 750, ticketCount: 0, 
+              requiresSize: [{ label: '長袖外套', options: SIZES.jacket }] },
+            { id: "sg4", emoji: "🪬", image: "", name: "吊飾A（我愛跳舞）",  price: 50,  ticketCount: 0 },
+            { id: "sg5", emoji: "🪬", image: "", name: "吊飾B（六人）",  price: 50,  ticketCount: 0 },
+            { id: "sg6", emoji: "🥤", image: "", name: "杯套",  price: 65,  ticketCount: 0 }
         ]
     },
     {
@@ -317,7 +313,6 @@ function updateCart(id, delta, price, tCount) {
     cart[id] = next;
     totalTickets += (diff * tCount);
     
-    // 防錯：如果價格為 null (待公布)，不計算進總價
     if (price !== null) {
         totalPrice += (diff * price);
     }
@@ -380,10 +375,8 @@ function renderSizeSelectors() {
 function validateState() {
     const btn = document.getElementById('next-btn');
     
-    // 檢查購物車是否為空
     let isEmpty = Object.values(cart).every(v => v === 0);
     
-    // 檢查尺寸是否都填妥
     const selects = document.querySelectorAll('.size-select');
     let allSizesFilled = true;
     selects.forEach(sel => {
@@ -539,7 +532,6 @@ async function submitOrder() {
             const qty = cart[item.id];
             if (qty > 0) {
                 if (item.requiresSize) {
-                    // 如果商品包含尺寸，將每一件拆分為獨立品項並加上尺寸字尾
                     for (let i = 0; i < qty; i++) {
                         let sizeStrs = [];
                         item.requiresSize.forEach(req => {
@@ -558,7 +550,6 @@ async function submitOrder() {
                         itemsTextHtml += generateReceiptItemHtml(cat.title, itemNameWithSize, 1, subtotalDisplay);
                     }
                 } else {
-                    // 一般商品
                     itemsList.push({ name: item.name, qty: qty, price: item.price, categoryId: cat.id });
                     const subtotalDisplay = item.price !== null ? `$${(item.price * qty).toLocaleString()}` : "待公布";
                     itemsTextHtml += generateReceiptItemHtml(cat.title, item.name, qty, subtotalDisplay);
