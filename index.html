@@ -46,7 +46,6 @@
             backdrop-filter: blur(4px);
         }
         
-        /* 座位核心樣式 */
         .seat {
             aspect-ratio: 1 / 1; 
             border-radius: 2px; 
@@ -59,7 +58,6 @@
         }
         .seat:active { transform: scale(0.9); }
         
-        /* 狀態樣式 */
         .seat.available { background: var(--available); }
         .seat.occupied { background: var(--occupied) !important; color: #fff !important; cursor: not-allowed; opacity: 0.5; border-color: #888; }
         .seat.selected { background: var(--selected) !important; color: #000 !important; font-weight: bold; border-color: #000; }
@@ -90,7 +88,8 @@
             flex-shrink: 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column;
         }
         .product-card-top { height: 120px; display: flex; align-items: center; justify-content: center; position: relative; background: linear-gradient(135deg, rgba(160,92,99,0.5), rgba(70,6,12,0.7)); }
-        .size-badge { position: absolute; top: 8px; right: 8px; background: #FFEB3B; color: #000; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 99px; text-decoration: none; }
+        .size-badge { position: absolute; top: 8px; right: 8px; background: #FFEB3B; color: #000; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 99px; cursor: pointer; border: none; outline: none; z-index: 20; }
+        .size-badge:active { transform: scale(0.95); }
         .product-card-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
         .qty-control { display: flex; align-items: center; justify-content: space-between; background: white; border-radius: 99px; padding: 2px 4px; }
         .qty-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: black; font-size: 22px; font-weight: 300; border-radius: 99px; cursor: pointer; user-select: none; transition: background 0.1s; }
@@ -115,7 +114,8 @@
 </div>
 
 <div class="sticky top-0 z-50 w-full h-[116px] flex flex-col justify-center items-center shadow-lg bg-[#a05c63] border-b border-white/10">
-    <img src="./images/m3-LOGO.png" alt="NLDC M3" class="h-14 object-contain mt-2" onerror="this.style.display='none'">
+    <!-- 替換此處的 src 為你的活動 LOGO 網址 -->
+    <img src="https://i.imgur.com/YOUR_LOGO_ID.png" alt="NLDC M3" class="h-14 object-contain mt-2" onerror="this.style.display='none'">
     <div class="mt-2 font-semibold text-[#3f0000] text-xs text-center tracking-[0.25px]">
         NLDC《M3》周邊預購＆訂票系統
     </div>
@@ -135,6 +135,13 @@
         </div>
 
         <div id="product-container" class="space-y-10"></div>
+        
+        <!-- 動態產生尺寸選擇的區塊 -->
+        <div id="size-section" class="hidden space-y-4 p-5 bg-white/5 border border-white/20 rounded-xl">
+            <h2 class="text-lg font-bold text-yellow-300">📏 請選擇商品尺寸</h2>
+            <p class="text-xs text-white/60 mb-2">您選購的商品包含服飾，請為每一件指定尺寸。</p>
+            <div id="size-container" class="space-y-4"></div>
+        </div>
     </div>
 
     <div id="step-2" class="hidden space-y-6">
@@ -155,7 +162,7 @@
         
         <div class="flex gap-4 mt-8">
             <button onclick="goBack()" class="flex-1 bg-transparent border border-white text-white py-4 rounded-xl font-bold active:bg-white/10 transition-colors shadow-lg">上一步</button>
-            <button onclick="submitOrder()" class="flex-[2] bg-white text-black py-4 rounded-xl font-bold active:bg-gray-200 transition-colors shadow-lg text-lg">確認劃位</button>
+            <button onclick="submitOrder()" class="flex-[2] bg-white text-black py-4 rounded-xl font-bold active:bg-gray-200 transition-colors shadow-lg text-lg">確認送出</button>
         </div>
     </div>
 </div>
@@ -169,42 +176,47 @@
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwvIbfw6K0zrMV6l4cXH-ihaiyGUyQ4GxDODSiH2-7Vn6a-bpPaCIbtIn1x67cbx5Yt/exec";
 const SITE_CLOSE_DATE = new Date('2026-07-11T23:00:00+08:00');
-const SIZE_INFO_URL = "https://www.instagram.com/nldc_25th";
-const EARLY_BIRD_LIMIT = 80;
+// 請將此處替換為你們的尺寸表圖片網址
+const SIZE_CHART_IMG_URL = "https://i.imgur.com/YOUR_SIZE_CHART.jpg"; 
+
+// 定義各品項的尺寸選項
+const SIZES = {
+    jacket: ['S', 'M', 'L', 'XL', '2L'],
+    shirtA: ['S', 'M', 'L', 'XL', '2L', '3L'],
+    shirtB: ['S', 'M', 'L', 'XL', '2L', '3L']
+};
 
 const productCategories = [
     {
-        title: "早鳥周邊套票", id: "early-bird", removeAfter: new Date('2026-07-01T00:00:00+08:00'), note: "2026/7/1 後移除本欄所有選項",
-        items: [
-            { id: "eb1", emoji: "🎫", name: "入門組：票＋吊飾＋杯套", price: null, ticketCount: 1, isEarlyBird: true },
-            { id: "eb2", emoji: "💃", name: "應援組：票＋短袖B", price: null, ticketCount: 1, hasSize: true, isEarlyBird: true },
-            { id: "eb3", emoji: "⭐", name: "收藏組：票＋短袖A＋吊飾", price: null, ticketCount: 1, hasSize: true, isEarlyBird: true }
-        ]
-    },
-    {
         title: "優惠周邊組合", id: "combo",
         items: [
-            { id: "cb1", emoji: "✨", name: "小物雙享：吊飾＋杯套", price: null, ticketCount: 0 },
-            { id: "cb2", emoji: "💫", name: "舞者穿搭：短袖B＋吊飾", price: null, ticketCount: 0, hasSize: true },
-            { id: "cb3", emoji: "👕", name: "雙款短袖：短袖A＋短袖B", price: null, ticketCount: 0, hasSize: true },
-            { id: "cb4", emoji: "🥋", name: "戰袍全集：外套＋短袖A＋短袖B", price: null, ticketCount: 0, hasSize: true }
+            // image 屬性請填寫圖片網址，若留空則會顯示 emoji
+            { id: "cb1", emoji: "✨", image: "", name: "小物雙享：吊飾＋杯套", price: null, ticketCount: 0 },
+            { id: "cb2", emoji: "💫", image: "", name: "舞者穿搭：短袖B＋吊飾", price: null, ticketCount: 0, 
+              requiresSize: [{ label: '短袖B', options: SIZES.shirtB }] },
+            { id: "cb3", emoji: "👕", image: "", name: "雙款短袖：短袖A＋短袖B", price: null, ticketCount: 0, 
+              requiresSize: [{ label: '短袖A', options: SIZES.shirtA }, { label: '短袖B', options: SIZES.shirtB }] },
+            { id: "cb4", emoji: "🥋", image: "", name: "戰袍全集：外套＋短袖A＋短袖B", price: null, ticketCount: 0, 
+              requiresSize: [{ label: '外套', options: SIZES.jacket }, { label: '短袖A', options: SIZES.shirtA }, { label: '短袖B', options: SIZES.shirtB }] }
         ]
     },
     {
-        title: "周邊單品", id: "single", sizeInfoLink: SIZE_INFO_URL,
+        title: "周邊單品", id: "single",
         items: [
-            { id: "sg1", emoji: "👕", name: "短袖A", price: 420, ticketCount: 0, hasSize: true },
-            { id: "sg2", emoji: "👔", name: "短袖B", price: 380, ticketCount: 0, hasSize: true },
-            { id: "sg3", emoji: "🧥", name: "外套",  price: 850, ticketCount: 0, hasSize: true },
-            { id: "sg4", emoji: "🪬", name: "吊飾",  price: 60,  ticketCount: 0 },
-            { id: "sg5", emoji: "🥤", name: "杯套",  price: 85,  ticketCount: 0 }
+            { id: "sg1", emoji: "👕", image: "", name: "短袖A (白)", price: 420, ticketCount: 0, 
+              requiresSize: [{ label: '短袖A', options: SIZES.shirtA }] },
+            { id: "sg2", emoji: "👔", image: "", name: "短袖B (青)", price: 380, ticketCount: 0, 
+              requiresSize: [{ label: '短袖B', options: SIZES.shirtB }] },
+            { id: "sg3", emoji: "🧥", image: "", name: "外套 (黑)",  price: 850, ticketCount: 0, 
+              requiresSize: [{ label: '外套', options: SIZES.jacket }] },
+            { id: "sg4", emoji: "🪬", image: "", name: "吊飾",  price: 60,  ticketCount: 0 },
+            { id: "sg5", emoji: "🥤", image: "", name: "杯套",  price: 85,  ticketCount: 0 }
         ]
     },
     {
-        title: "門票", id: "ticket", showEarlyBirdRemaining: true,
+        title: "門票", id: "ticket",
         items: [
-            { id: "tk1", emoji: "🌟", name: "NLDC《M3》早鳥票", price: 50, originalPrice: 85, ticketCount: 1, isEarlyBird: true, removeAfter: new Date('2026-05-31T00:00:00+08:00'), note: "2026/5/31 後移除此選項" },
-            { id: "tk2", emoji: "🎟️", name: "NLDC《M3》一般票", price: 85, ticketCount: 1, removeAfter: new Date('2026-07-01T00:00:00+08:00'), note: "2026/7/1 後移除此選項，改於進場時購買" }
+            { id: "tk2", emoji: "🎟️", image: "", name: "NLDC《M3》一般票", price: 85, ticketCount: 1, removeAfter: new Date('2026-07-01T00:00:00+08:00'), note: "2026/7/1 後移除此選項，改於進場時購買" }
         ]
     }
 ];
@@ -215,13 +227,26 @@ let totalPrice = 0;
 let selectedSeats = [];
 let seatStatusMap = {};
 let isDataPreloaded = false;
-let earlyBirdSoldCount = 0;
 
 function checkSiteClose() {
     if (new Date() >= SITE_CLOSE_DATE) {
         document.getElementById('site-closed').classList.remove('hidden');
         document.getElementById('bottom-bar').classList.add('hidden');
     }
+}
+
+function showSizeChart() {
+    Swal.fire({
+        title: '服飾尺寸表',
+        imageUrl: SIZE_CHART_IMG_URL,
+        imageAlt: '尺寸表圖片',
+        confirmButtonText: '關閉',
+        customClass: { 
+            popup: 'swal-dark-popup', 
+            title: 'swal-dark-title text-center', 
+            confirmButton: 'swal-dark-confirm' 
+        }
+    });
 }
 
 function renderProducts() {
@@ -236,24 +261,19 @@ function renderProducts() {
 
         category.items.forEach(item => { if (!(item.id in cart)) cart[item.id] = 0; });
 
-        let titleSuffix = '';
-        if (category.showEarlyBirdRemaining) {
-            const remaining = Math.max(0, EARLY_BIRD_LIMIT - earlyBirdSoldCount);
-            titleSuffix = `<span class="text-sm font-normal text-yellow-300 ml-1">（早鳥票剩餘 ${remaining} 張）</span>`;
-        }
-
         html += `<div class="space-y-3">
             <div class="flex items-center justify-between gap-2 flex-wrap">
-                <h2 class="text-xl font-semibold text-white tracking-[0.25px] leading-6">${category.title}${titleSuffix}</h2>
-                ${category.sizeInfoLink ? `<a href="${category.sizeInfoLink}" target="_blank" rel="noopener" class="text-xs text-yellow-300 underline underline-offset-2 flex-shrink-0">📏 尺寸說明 →</a>` : ''}
+                <h2 class="text-xl font-semibold text-white tracking-[0.25px] leading-6">${category.title}</h2>
             </div>
             ${category.note ? `<p class="text-[11px] text-white/50">${category.note}</p>` : ''}
             <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">`;
 
         activeItems.forEach(item => {
             const isTbd = item.price === null;
-            const sizeLinkUrl = category.sizeInfoLink || SIZE_INFO_URL;
-            const sizeBadgeHtml = item.hasSize ? `<a href="${sizeLinkUrl}" target="_blank" rel="noopener" class="size-badge">尺寸</a>` : '';
+            const sizeBadgeHtml = item.requiresSize ? `<button onclick="showSizeChart()" class="size-badge">尺寸表</button>` : '';
+            const imageHtml = item.image 
+                ? `<img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover relative z-10">` 
+                : `<span class="text-5xl relative z-10">${item.emoji}</span>`;
 
             let priceHtml = '';
             if (isTbd) {
@@ -271,7 +291,10 @@ function renderProducts() {
                   </div>`;
 
             html += `<div class="product-card">
-                <div class="product-card-top"><span class="text-5xl relative z-10">${item.emoji}</span>${sizeBadgeHtml}</div>
+                <div class="product-card-top relative">
+                    ${imageHtml}
+                    ${sizeBadgeHtml}
+                </div>
                 <div class="product-card-body">
                     <div class="text-sm font-medium text-white leading-snug min-h-[38px] flex items-start">${item.name}</div>
                     <div class="flex items-baseline gap-1 flex-wrap">${priceHtml}</div>
@@ -284,7 +307,7 @@ function renderProducts() {
     });
 
     container.innerHTML = html;
-    updateBottomButton();
+    validateState();
 }
 
 function updateCart(id, delta, price, tCount) {
@@ -293,16 +316,85 @@ function updateCart(id, delta, price, tCount) {
     let diff = next - current;
     cart[id] = next;
     totalTickets += (diff * tCount);
-    totalPrice   += (diff * price);
+    
+    // 防錯：如果價格為 null (待公布)，不計算進總價
+    if (price !== null) {
+        totalPrice += (diff * price);
+    }
+
     const qtyEl = document.getElementById(`qty-${id}`);
     if (qtyEl) qtyEl.innerText = next;
-    updateBottomButton();
+    
+    renderSizeSelectors();
 }
 
-function updateBottomButton() {
+function renderSizeSelectors() {
+    const section = document.getElementById('size-section');
+    const container = document.getElementById('size-container');
+    let html = '';
+    let hasSizedItems = false;
+
+    productCategories.forEach(cat => {
+        cat.items.forEach(item => {
+            const qty = cart[item.id] || 0;
+            if (qty > 0 && item.requiresSize) {
+                hasSizedItems = true;
+                html += `<div class="p-3 bg-black/20 rounded-lg border border-white/10">
+                    <div class="font-semibold text-white mb-2 text-sm">${item.name} (共 ${qty} 組)</div>`;
+                
+                for (let i = 0; i < qty; i++) {
+                    html += `<div class="mb-3 last:mb-0 border-l-2 border-[#a05c63] pl-2">
+                        <div class="text-xs text-white/50 mb-1">第 ${i + 1} 組：</div>
+                        <div class="flex flex-wrap gap-2">`;
+                    
+                    item.requiresSize.forEach(req => {
+                        html += `<div class="flex flex-col gap-1 flex-1 min-w-[100px]">
+                            <label class="text-[11px] text-white/80">${req.label}</label>
+                            <select class="size-select bg-white text-black rounded p-1.5 outline-none text-sm font-medium border border-transparent focus:border-[#a05c63]"
+                                data-item-id="${item.id}"
+                                data-index="${i}"
+                                data-label="${req.label}"
+                                onchange="validateState()">
+                                <option value="">選擇尺寸...</option>
+                                ${req.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                            </select>
+                        </div>`;
+                    });
+                    html += `</div></div>`;
+                }
+                html += `</div>`;
+            }
+        });
+    });
+
+    container.innerHTML = html;
+    if (hasSizedItems) {
+        section.classList.remove('hidden');
+    } else {
+        section.classList.add('hidden');
+    }
+    
+    validateState();
+}
+
+function validateState() {
     const btn = document.getElementById('next-btn');
-    if (totalPrice === 0) {
+    
+    // 檢查購物車是否為空
+    let isEmpty = Object.values(cart).every(v => v === 0);
+    
+    // 檢查尺寸是否都填妥
+    const selects = document.querySelectorAll('.size-select');
+    let allSizesFilled = true;
+    selects.forEach(sel => {
+        if (!sel.value) allSizesFilled = false;
+    });
+
+    if (isEmpty) {
         btn.innerText = "請選擇商品";
+        btn.disabled = true;
+    } else if (!allSizesFilled) {
+        btn.innerText = "請完成尺寸選擇";
         btn.disabled = true;
     } else if (totalTickets === 0) {
         btn.innerText = `確認總額 $${totalPrice.toLocaleString()}（無劃位）`;
@@ -322,10 +414,6 @@ window.onload = function() {
         .then(json => {
             if (json.result === "success") {
                 (json.seats || []).forEach(([id, status]) => { seatStatusMap[String(id)] = String(status); });
-                if (typeof json.earlyBirdSold === 'number') {
-                    earlyBirdSoldCount = json.earlyBirdSold;
-                    renderProducts(); 
-                }
                 isDataPreloaded = true;
             }
         })
@@ -357,7 +445,6 @@ async function goToSeats() {
             if (json.result === "success") {
                 seatStatusMap = {};
                 (json.seats || []).forEach(([id, status]) => { seatStatusMap[String(id)] = String(status); });
-                if (typeof json.earlyBirdSold === 'number') { earlyBirdSoldCount = json.earlyBirdSold; }
                 isDataPreloaded = true;
             }
         } catch (e) {
@@ -379,7 +466,6 @@ function goBack() {
     document.getElementById("bottom-bar").classList.remove("translate-y-full");
 }
 
-/* 取消座位顏色，全部設為可點選的白色狀態 */
 function initSeats() {
     const container = document.getElementById("seatContainer");
     container.innerHTML = "";
@@ -392,14 +478,12 @@ function initSeats() {
         cols.forEach(c => {
             const div = document.createElement("div");
 
-            // 1. 處理走道 (隱藏不顯示)
             if (r === 'GAP3' || c === 'GAP1' || c === 'GAP2') {
                 div.classList.add("seat", "aisle");
                 container.appendChild(div); 
                 return;
             }
 
-            // 2. 處理圖片中真正的「無格線真空區塊」
             if ((r === 12 && ['A','B','C','D','E','F','G'].includes(c)) ||
                 (r === 12 && ['U','V','W','X','Y','Z','#'].includes(c)) ||
                 (r === 15 && ['U','V','W','X','Y','Z','#'].includes(c))) {
@@ -410,14 +494,13 @@ function initSeats() {
 
             const seatId = c + r;
             div.classList.add("seat"); 
-            div.innerText = seatId; // 顯示 A1, B2 字樣
+            div.innerText = seatId; 
 
-            // 3. 判斷後端狀態 (只分「已售出」與「可劃位」)
             const status = seatStatusMap[seatId] || "available";
             if (status === "occupied") {
-                div.classList.add("occupied"); // 後端判定已售出
+                div.classList.add("occupied"); 
             } else {
-                div.classList.add("available"); // 皆可點選
+                div.classList.add("available"); 
                 div.onclick = () => toggleSeat(seatId, div);
             }
 
@@ -453,18 +536,33 @@ async function submitOrder() {
 
     productCategories.forEach(cat => {
         cat.items.forEach(item => {
-            if (cart[item.id] > 0) {
-                itemsList.push({ name: item.name, qty: cart[item.id], price: item.price, categoryId: cat.id, isEarlyBird: item.isEarlyBird || false });
-                const subtotal = (item.price * cart[item.id]).toLocaleString();
-                itemsTextHtml += `
-                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
-                    <div>
-                        <div style="color:#aaa; font-size:12px;">${cat.title.replace('（早鳥票剩餘 ' + (EARLY_BIRD_LIMIT - earlyBirdSoldCount) + ' 張）','')}</div>
-                        <div style="font-size:14px; font-weight:500;">${item.name} <span style="font-size:12px; margin-left:5px;">x${cart[item.id]}</span></div>
-                    </div>
-                    <div style="font-size:18px; font-weight:bold;">$${subtotal}</div>
-                </div>
-                <hr style="border:0.5px solid rgba(255,255,255,0.2); margin:10px 0;">`;
+            const qty = cart[item.id];
+            if (qty > 0) {
+                if (item.requiresSize) {
+                    // 如果商品包含尺寸，將每一件拆分為獨立品項並加上尺寸字尾
+                    for (let i = 0; i < qty; i++) {
+                        let sizeStrs = [];
+                        item.requiresSize.forEach(req => {
+                            const sel = document.querySelector(`.size-select[data-item-id="${item.id}"][data-index="${i}"][data-label="${req.label}"]`);
+                            if (sel && sel.value) {
+                                sizeStrs.push(`${req.label}:${sel.value}`);
+                            }
+                        });
+                        
+                        const sizeSuffix = sizeStrs.length > 0 ? ` (${sizeStrs.join(', ')})` : '';
+                        const itemNameWithSize = item.name + sizeSuffix;
+                        
+                        itemsList.push({ name: itemNameWithSize, qty: 1, price: item.price, categoryId: cat.id });
+                        
+                        const subtotalDisplay = item.price !== null ? `$${item.price.toLocaleString()}` : "待公布";
+                        itemsTextHtml += generateReceiptItemHtml(cat.title, itemNameWithSize, 1, subtotalDisplay);
+                    }
+                } else {
+                    // 一般商品
+                    itemsList.push({ name: item.name, qty: qty, price: item.price, categoryId: cat.id });
+                    const subtotalDisplay = item.price !== null ? `$${(item.price * qty).toLocaleString()}` : "待公布";
+                    itemsTextHtml += generateReceiptItemHtml(cat.title, item.name, qty, subtotalDisplay);
+                }
             }
         });
     });
@@ -498,7 +596,7 @@ async function submitOrder() {
                 <ul style="padding-left:18px; margin-bottom:20px; color:#ddd; font-size:13px;">
                     <li>請於 <strong style="color:#fff;">一週內</strong> 將款項交給 <strong style="color:#fff;">206 班 林佑家</strong>，否則預訂商品與劃位將自動失效！</li>
                     <li>門票將於六月跑班發送。若您非本校學生或跑班後才購票，活動當天憑學生證或身分證入場。</li>
-                    <li>6/10 前訂購周邊並繳費成功，將於成發當天入場時領取。6/10 後的訂單預估 8/4 到貨，再另行通知取貨方法，請關注 NLDC IG <strong style="color:#fff;">@nldc_25th</strong></li>
+                    <li>6/10 前訂購周邊並繳費成功，將於成發當天入場時領取。</li>
                 </ul>
                 <h3 style="font-size:18px; font-weight:bold; margin-bottom:10px; color:#fff;">訂單資料</h3>
                 <div style="display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px;">
@@ -534,6 +632,18 @@ async function submitOrder() {
         hideLoading();
         Swal.fire({ icon: 'error', title: '連線錯誤', text: '傳送失敗，請檢查網路連線後再試一次！', customClass: { popup: 'swal-dark-popup', title: 'swal-dark-title', confirmButton: 'swal-dark-confirm' } });
     }
+}
+
+function generateReceiptItemHtml(categoryTitle, name, qty, subtotalDisplay) {
+    return `
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+        <div style="flex: 1; padding-right: 10px;">
+            <div style="color:#aaa; font-size:12px;">${categoryTitle}</div>
+            <div style="font-size:14px; font-weight:500; line-height:1.3;">${name} <span style="font-size:12px; margin-left:5px; color:#FFEB3B;">x${qty}</span></div>
+        </div>
+        <div style="font-size:16px; font-weight:bold;">${subtotalDisplay}</div>
+    </div>
+    <hr style="border:0.5px solid rgba(255,255,255,0.2); margin:10px 0;">`;
 }
 
 function showLoading(text) {
